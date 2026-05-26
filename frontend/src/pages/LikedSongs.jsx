@@ -6,6 +6,7 @@ import SongRow from "../components/SongRow";
 export default function LikedSongs() {
     const [songs, setSongs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchName, setSearchName] = useState("");
 
     useEffect(() => {
         const fetchLikedSongs = async () => {
@@ -25,6 +26,23 @@ export default function LikedSongs() {
         fetchLikedSongs();
     }, []);
 
+    const filteredSongs = songs.filter((song) => {
+        const trackName = song.track?.name?.toLowerCase() || "";
+        const artistNames =
+            song.track?.artists
+                ?.map((a) => a.name)
+                .join(" ")
+                .toLowerCase() || "";
+        const albumName = song.track?.album?.name?.toLowerCase() || "";
+        const query = searchName.toLowerCase();
+
+        return (
+            trackName.includes(query) ||
+            artistNames.includes(query) ||
+            albumName.includes(query)
+        );
+    });
+
     if (loading) {
         return (
             <div className="p-8 text-slate-900 animate-pulse">
@@ -42,13 +60,41 @@ export default function LikedSongs() {
                         <h2 className="text-3xl font-bold mb-6 tracking-tight text-slate-900">
                             Your Liked Songs
                         </h2>
-                        {songs.map((song, index) => (
-                            <SongRow
-                                key={song.track?.id || index}
-                                songData={song}
-                                index={index + 1}
+                        <div className="flex flex-col sm:flex-row gap-1 mb-3">
+                            <input
+                                type="text"
+                                value={searchName}
+                                onChange={(e) => setSearchName(e.target.value)}
+                                placeholder="Search by title, artist, or album..."
+                                className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
                             />
-                        ))}
+                        </div>
+                        {filteredSongs.length === 0 ? (
+                            <div className="p-12 text-center bg-white border border-slate-200 rounded-xl shadow-sm mt-2">
+                                <span className="text-3xl block mb-2">🔍</span>
+                                <h3 className="text-sm font-medium text-slate-800 mb-1">
+                                    No songs found
+                                </h3>
+                                <p className="text-xs text-slate-500">
+                                    Check the spelling, or try entering a
+                                    different song title, artist, or album.
+                                </p>
+                            </div>
+                        ) : (
+                            <ul className="flex flex-col gap-2">
+                                {filteredSongs.map((song, index) => (
+                                    <li
+                                        key={song.track?.id || index}
+                                        className="list-none"
+                                    >
+                                        <SongRow
+                                            songData={song}
+                                            index={index + 1}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 </div>
             </div>
