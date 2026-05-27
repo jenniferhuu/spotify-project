@@ -12,7 +12,7 @@ export default function Home() {
                     <h1 className="text-3xl font-extrabold text-black tracking-tight">
                         Welcome back,{" "}
                         <span className="text-[#1F6F5F]">
-                            {user.username}
+                            {user?.username}
                         </span>{" "}
                     </h1>
                 </div>
