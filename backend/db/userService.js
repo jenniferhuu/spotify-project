@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, updateDoc, query, where } from "firebase/firestore";
 
 import db from "../firebase.js";
 
@@ -27,6 +27,16 @@ export const validateUser = async (username, spotifyId) => {
     }
 
     return user;
+};
+
+export const listPublicUsers = async () => {
+    const q = query(collection(db, "Users"), where("isPrivate", "==", false));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+};
+
+export const updateUser = async (userId, data) => {
+    await updateDoc(doc(db, "Users", userId), data);
 };
 
 export const createUser = async (userData) => {
