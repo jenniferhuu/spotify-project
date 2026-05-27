@@ -1,0 +1,173 @@
+import express from "express";
+import crypto from "node:crypto";
+
+import {
+    validateUser,
+    findUserBySpotifyId,
+    createUser,
+} from "../db/userService.js";
+
+const router = express.Router();
+const spotifyAccountsUrl = "https://accounts.spotify.com";
+const spotifyApiUrl = "https://api.spotify.com/v1";
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+const spotifyScopes = [
+    "user-read-email",
+    "user-read-private",
+    "user-library-read",
+];
+
+const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } =
+    process.env;
+
+function getCookie(req, name) {
+    const header = req.headers.cookie;
+
+    if (!header) {
+        return "";
+    }
+
+    const cookies = Object.fromEntries(
+        header.split(";").map((cookie) => {
+            const [name, ...valueParts] = cookie.trim().split("=");
+            try {
+                return [name, decodeURIComponent(valueParts.join("="))];
+            } catch {
+                return [name, valueParts.join("=")];
+            }
+        }),
+    );
+    return cookies[name] || "";
+}
+
+function buildFrontendRedirect(path, params = {}) {
+    const redirectUrl = new URL(path, frontendUrl);
+    Object.entries(params).forEach(([key, value]) => {
+        if (value) {
+            redirectUrl.searchParams.set(key, value);
+        }
+    });
+    return redirectUrl.toString();
+}
+
+function encodeUser(user) {
+    return Buffer.from(JSON.stringify(user)).toString("base64url");
+}
+
+function buildSpotifyUser(profile) {
+    return {
+        spotifyId: profile.id,
+        username: profile.display_name || profile.id,
+    };
+}
+
+async function getSpotifyErroMessage(response, fallbackMessage) {
+    const responseText = await response.text();
+
+    if (!responseText) return fallbackMessage;
+
+    try {
+        const responseBody = JSON.parse(responseText);
+        return (
+            responseBody.error_description ||
+            responseBody.error?.message ||
+            responseBody.error ||
+            fallbackMessage
+        );
+    } catch {
+        return responseText;
+    }
+}
+
+router.get("/spotify", (req, res) => {
+    const state = crypto.randomBytes(16).toString("hex");
+    const authorizeUrl = new URL("/authorize", spotifyAccountsUrl);
+    authorizeUrl.searchParams.set("client_id", SPOTIFY_CLIENT_ID);
+    authorizeUrl.searchParams.set("response_type", "code");
+    authorizeUrl.searchParams.set("redirect_uri", SPOTIFY_REDIRECT_URI);
+    authorizeUrl.searchParams.set("scope", spotifyScopes.join(" "));
+    authorizeUrl.searchParams.set("state", state);
+
+    res.cookie("spotify_auth_state", state, {
+        httpOnly: true,
+        maxAge: 10 * 60 * 1000,
+        sameSite: "lax",
+    });
+    return res.redirect(authorizeUrl.toString());
+});
+
+router.get("/spotify/callback", async (req, res) => {
+    const { code, state, error } = req.query;
+    if (error) {
+        return res.redirect(
+            buildFrontendRedirect("/spotify/callback", { error }),
+        );
+    }
+
+    const savedState = getCookie(req, "spotify_auth_state");
+    if (!code || !state || savedState !== state) {
+        return res.redirect(
+            buildFrontendRedirect("/spotify/callback", {
+                error: "Invalid Spotify login attempt",
+            }),
+        );
+    }
+
+    res.clearCookie("spotify_auth_state");
+
+    try {
+        const tokenResponse = await fetch(`${spotifyAccountsUrl}/api/token`, {
+            method: "POST",
+            headers: {
+                Authorization: `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString("base64")}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                code,
+                grant_type: "authorization_code",
+                redirect_uri: SPOTIFY_REDIRECT_URI,
+            }),
+        });
+        if (!tokenResponse.ok) throw new Error("Token exchange failed");
+        const tokenData = await tokenResponse.json();
+
+        const profileResponse = await fetch(`${spotifyApiUrl}/me`, {
+            headers: { Authorization: `Bearer ${tokenData.access_token}` },
+        });
+
+        if (!profileResponse.ok) throw new Error("Failed to fetch profile");
+        const profile = await profileResponse.json();
+
+        const spotifyUserObject = buildSpotifyUser(profile);
+
+        let inDatabase = await findUserBySpotifyId(spotifyUserObject.spotifyId);
+
+        if (!inDatabase) {
+            const newUser = await createUser({
+                spotifyId: spotifyUserObject.spotifyId,
+                username: spotifyUserObject.username,
+                isPrivate: true,
+                pinnedArtists: [],
+                pinnedTracks: [],
+            });
+            console.log("Created new user");
+        }
+
+        return res.redirect(
+            buildFrontendRedirect("/spotify/callback", {
+                user: encodeUser(spotifyUserObject),
+                token: tokenData.access_token,
+                refreshToken: tokenData.refresh_token,
+            }),
+        );
+    } catch (error) {
+        console.error("Failed to authorize user with Spotify: ", error);
+        return res.redirect(
+            buildFrontendRedirect("/spotify/callback", {
+                error: error.message,
+            }),
+        );
+    }
+});
+
+export default router;
