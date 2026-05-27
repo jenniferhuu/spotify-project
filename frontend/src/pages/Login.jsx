@@ -9,7 +9,7 @@ export default function Login() {
         <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
             <div className="bg-white rounded-2xl shadow-md w-full max-w-md p-8">
                 <div className="flex items-center justify-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-[#1B5E3A] rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-[#1F6F5F] rounded-full flex items-center justify-center">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="w-5 h-5 text-white"
@@ -36,7 +36,7 @@ export default function Login() {
 
                 <button
                     onClick={handleLogin}
-                    className="w-full flex items-center justify-center gap-3 bg-[#1B5E3A] hover:bg-[#164D30] text-white font-semibold py-3 px-6 rounded-full transition-colors duration-150 cursor-pointer"
+                    className="w-full flex items-center justify-center gap-3 bg-[#1F6F5F] hover:bg-[#185C50] text-white font-semibold py-3 px-6 rounded-full transition-colors duration-150 cursor-pointer"
                 >
                     <svg
                         className="w-5 h-5"
@@ -65,7 +65,7 @@ export default function Login() {
                             className="flex items-start gap-3 text-sm text-slate-700"
                         >
                             <svg
-                                className="w-5 h-5 text-[#1B5E3A] shrink-0 mt-0.5"
+                                className="w-5 h-5 text-[#1F6F5F] shrink-0 mt-0.5"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
