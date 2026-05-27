@@ -6,6 +6,7 @@ import App from "./App.jsx";
 import "./index.css";
 import Home from "./pages/Home.jsx";
 import LikedSongs from "./pages/LikedSongs.jsx";
+import TopSongs from "./pages/topSongs.jsx";
 
 const router = createBrowserRouter([
     {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
             {
                 path: "/likedsongs",
                 element: <LikedSongs />,
+            },
+            {
+                path: "/topSongs",
+                element: <TopSongs />,
             },
         ],
     },
