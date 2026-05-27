@@ -8,6 +8,7 @@ export default function LikedSongs() {
     const { token } = useAuth();
 
     const [songs, setSongs] = useState([]);
+    const [visibleCount, setVisibleCount] = useState(20);
     const [loading, setLoading] = useState(true);
     const [searchName, setSearchName] = useState("");
 
@@ -53,6 +54,12 @@ export default function LikedSongs() {
         );
     });
 
+    const songsToDisplay = filteredSongs.slice(0, visibleCount);
+
+    const handleShowMore = () => {
+        setVisibleCount((prev) => prev + 10);
+    };
+
     if (loading) {
         return (
             <div className="p-8 text-slate-900 animate-pulse">
@@ -79,7 +86,7 @@ export default function LikedSongs() {
                                 className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
                             />
                         </div>
-                        {filteredSongs.length === 0 ? (
+                        {songsToDisplay.length === 0 ? (
                             <div className="p-12 text-center bg-white border border-slate-200 rounded-xl shadow-sm mt-2">
                                 <span className="text-3xl block mb-2">🔍</span>
                                 <h3 className="text-sm font-medium text-slate-800 mb-1">
@@ -91,19 +98,29 @@ export default function LikedSongs() {
                                 </p>
                             </div>
                         ) : (
-                            <ul className="flex flex-col gap-2">
-                                {filteredSongs.map((song, index) => (
-                                    <li
-                                        key={song.track?.id || index}
-                                        className="list-none"
+                            <>
+                                <ul className="flex flex-col gap-2">
+                                    {songsToDisplay.map((song, index) => (
+                                        <li
+                                            key={song.track?.id || index}
+                                            className="list-none"
+                                        >
+                                            <SongRow
+                                                songData={song}
+                                                index={index + 1}
+                                            />
+                                        </li>
+                                    ))}
+                                </ul>
+                                {filteredSongs.length > visibleCount && (
+                                    <button
+                                        onClick={handleShowMore}
+                                        className="mt-4 mx-auto px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-full transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                                     >
-                                        <SongRow
-                                            songData={song}
-                                            index={index + 1}
-                                        />
-                                    </li>
-                                ))}
-                            </ul>
+                                        Show More
+                                    </button>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

@@ -13,12 +13,15 @@ router.get("/likedsongs", async (req, res) => {
         }
 
         const token = authHeader.split(" ")[1];
-        const response = await fetch("https://api.spotify.com/v1/me/tracks", {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await fetch(
+            "https://api.spotify.com/v1/me/tracks?limit=50",
+            {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         if (!response.ok) {
             const errorData = await response.json();
