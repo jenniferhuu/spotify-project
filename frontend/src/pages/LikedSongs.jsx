@@ -1,18 +1,28 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthProvider";
 import Navbar from "../components/Navbar";
 import SongRow from "../components/SongRow";
 
 export default function LikedSongs() {
+    const { token } = useAuth();
+
     const [songs, setSongs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchName, setSearchName] = useState("");
 
     useEffect(() => {
+        if (!token) return;
+
         const fetchLikedSongs = async () => {
             try {
-                const response = await axios(
+                const response = await axios.get(
                     "http://localhost:5000/songs/likedsongs",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
                 );
                 setSongs(response.data.items);
                 console.log(response.data.items);
@@ -24,7 +34,7 @@ export default function LikedSongs() {
         };
 
         fetchLikedSongs();
-    }, []);
+    }, [token]);
 
     const filteredSongs = songs.filter((song) => {
         const trackName = song.track?.name?.toLowerCase() || "";
