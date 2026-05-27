@@ -5,6 +5,7 @@ import {
     validateUser,
     findUserBySpotifyId,
     createUser,
+    updateUser,
 } from "../db/userService.js";
 
 const router = express.Router();
@@ -15,6 +16,7 @@ const spotifyScopes = [
     "user-read-email",
     "user-read-private",
     "user-library-read",
+    "user-top-read",
 ];
 
 const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } =
@@ -58,6 +60,7 @@ function buildSpotifyUser(profile) {
     return {
         spotifyId: profile.id,
         username: profile.display_name || profile.id,
+        profilePic: profile.images?.[0]?.url || "",
     };
 }
 
@@ -138,19 +141,39 @@ router.get("/spotify/callback", async (req, res) => {
         if (!profileResponse.ok) throw new Error("Failed to fetch profile");
         const profile = await profileResponse.json();
 
+        // Fetch top artist to get genre
+        let topGenre = "";
+        try {
+            const topArtistsRes = await fetch(`${spotifyApiUrl}/me/top/artists?limit=1`, {
+                headers: { Authorization: `Bearer ${tokenData.access_token}` },
+            });
+            if (topArtistsRes.ok) {
+                const topArtists = await topArtistsRes.json();
+                topGenre = topArtists.items?.[0]?.genres?.[0] || "";
+            }
+        } catch {
+            // Non-critical, just leave topGenre empty
+        }
+
         const spotifyUserObject = buildSpotifyUser(profile);
 
         let inDatabase = await findUserBySpotifyId(spotifyUserObject.spotifyId);
 
         if (!inDatabase) {
-            const newUser = await createUser({
+            await createUser({
                 spotifyId: spotifyUserObject.spotifyId,
                 username: spotifyUserObject.username,
+                profilePic: spotifyUserObject.profilePic,
+                topGenre,
                 isPrivate: true,
                 pinnedArtists: [],
                 pinnedTracks: [],
             });
-            console.log("Created new user");
+        } else {
+            await updateUser(inDatabase.id, {
+                profilePic: spotifyUserObject.profilePic,
+                topGenre,
+            });
         }
 
         return res.redirect(

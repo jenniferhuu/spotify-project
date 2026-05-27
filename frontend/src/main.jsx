@@ -6,6 +6,7 @@ import "./index.css";
 import App from "./App.jsx";
 import Home from "./pages/Home.jsx";
 import LikedSongs from "./pages/LikedSongs.jsx";
+import Discover from "./pages/Discover.jsx";
 import Login from "./pages/Login.jsx";
 import Callback from "./pages/Callback.jsx";
 
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
             {
                 path: "/likedsongs",
                 element: <LikedSongs />,
+            },
+            {
+                path: "/discover",
+                element: <Discover />,
             },
         ],
     },
