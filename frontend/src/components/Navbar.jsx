@@ -24,7 +24,7 @@ export default function Navbar() {
     const { pathname } = useLocation();
 
     return (
-        <nav className="flex flex-col items-center w-56 h-screen px-8 py-4 bg-[#6FCF97] border-r border-slate-200">
+        <nav className="flex flex-col items-center w-48 h-screen px-6 py-4 bg-[#1F6F5F] sticky top-0 border-r border-slate-200">
             <ul className="flex flex-col gap-5 w-full">
                 {links.map(({ to, label, icon }) => {
                     const active = pathname === to;
@@ -36,13 +36,13 @@ export default function Navbar() {
                                     ${
                                         active
                                             ? "bg-white text-slate-950 font-bold shadow-sm"
-                                            : "text-slate-900 hover:text-slate-800 hover:bg-slate-50/50"
+                                            : "text-white/90 hover:text-white hover:bg-white/10"
                                     }`}
                             >
                                 <img
                                     src={icon}
                                     alt={`${label} icon`}
-                                    className="w-5 h-5 object-contain"
+                                    className={`w-5 h-5 object-contain ${active ? "" : "brightness-0 invert"}`}
                                 />
                                 {label}
                             </Link>
