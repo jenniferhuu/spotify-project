@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import ForumCard from '../components/forums/ForumCard';
 import CreateForumModal from '../components/forums/CreateForumModal';
+import { SearchIcon, PlusIcon } from '../components/forums/ForumIcons';
 import { fetchForums, searchForums } from '../api/forums';
 
 export default function ForumsPage() {
@@ -47,48 +48,109 @@ export default function ForumsPage() {
     return (
         <div className="flex h-screen">
             <Navbar />
-            <main className="flex-1 p-8 bg-[#EEEEEE] overflow-y-auto">
-                <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold text-[#1F6F5F]">MUSIC FORUMS</h1>
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="bg-[#2FA084] hover:bg-[#1F6F5F] text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                        + Create Forum
-                    </button>
-                </div>
+            <main className="flex-1 bg-[#EEEEEE] overflow-y-auto">
+                <div style={{
+                    maxWidth: '1200px',
+                    margin: '0 auto',
+                    padding: 'clamp(24px, 3vh, 40px) clamp(32px, 4vw, 64px)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 'clamp(24px, 4vh, 48px)',
+                }}>
 
-                <input
-                    type="text"
-                    value={search}
-                    onChange={handleSearch}
-                    placeholder="Search Forums"
-                    className="w-full px-4 py-2 mb-6 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2FA084]"
-                />
-
-                {loading ? (
-                    <p className="text-gray-500 text-sm">Loading...</p>
-                ) : forums.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No forums yet. Create one</p>
-                ) : (
-                    <div className="flex flex-col gap-3">
-                        {forums.map(forum => (
-                            <ForumCard
-                                key={forum.id}
-                                forum={forum}
-                                onClick={() => navigate(`/forums/${forum.id}`, { state: { forumTitle: forum.title } })}
-                            />
-                        ))}
+                    {/* Section 1 — App title */}
+                    <div>
+                        <span style={{ fontSize: '18px', fontWeight: '700', color: '#1F6F5F' }}>
+                            APP NAME
+                        </span>
                     </div>
-                )}
 
-                {showModal && (
-                    <CreateForumModal
-                        onClose={() => setShowModal(false)}
-                        onCreated={loadForums}
-                    />
-                )}
+                    {/* Section 2 — Forum name + search + create */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <h1 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: '700', color: '#1F6F5F', margin: 0 }}>
+                            MUSIC FORUMS
+                        </h1>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={handleSearch}
+                                    placeholder="Search Forums"
+                                    style={{
+                                        width: '100%',
+                                        padding: '14px 48px 14px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #d1d5db',
+                                        backgroundColor: '#fff',
+                                        fontSize: '14px',
+                                        outline: 'none',
+                                        boxSizing: 'border-box',
+                                        height: '52px',
+                                    }}
+                                />
+                                <span style={{ position: 'absolute', right: '14px', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: '#9ca3af' }}>
+                                    <SearchIcon className="w-5 h-5" />
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => setShowModal(true)}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    backgroundColor: '#2FA084',
+                                    color: '#fff',
+                                    padding: '0 28px',
+                                    borderRadius: '12px',
+                                    border: 'none',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                    flexShrink: 0,
+                                    height: '52px',
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1F6F5F'}
+                                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2FA084'}
+                            >
+                                <PlusIcon className="w-4 h-4" />
+                                Create Forum
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Section 3 — Cards */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <p style={{ fontSize: '11px', fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
+                            Forums
+                        </p>
+                        {loading ? (
+                            <p className="text-gray-500 text-sm">Loading...</p>
+                        ) : forums.length === 0 ? (
+                            <p className="text-gray-500 text-sm">No forums yet. Create one!</p>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {forums.map(forum => (
+                                    <ForumCard
+                                        key={forum.id}
+                                        forum={forum}
+                                        onClick={() => navigate(`/forums/${forum.id}`, { state: { forumTitle: forum.title } })}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                </div>
             </main>
+
+            {showModal && (
+                <CreateForumModal
+                    onClose={() => setShowModal(false)}
+                    onCreated={loadForums}
+                />
+            )}
         </div>
     );
 }

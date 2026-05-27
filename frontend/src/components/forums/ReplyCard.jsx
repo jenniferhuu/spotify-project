@@ -1,8 +1,23 @@
+import { UserIcon } from './ForumIcons';
+
 export default function ReplyCard({ reply }) {
     return (
-        <div className="bg-white px-5 py-4 rounded-md border border-gray-200">
-            <span className="text-xs font-semibold text-[#2FA084]">{reply.authorName}</span>
-            <p className="text-sm text-gray-800 mt-1">{reply.body}</p>
+        <div style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #d1d5db',
+            borderRadius: '12px',
+            padding: '18px 24px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+        }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                <UserIcon className="w-4 h-4" style={{ color: '#2FA084' }} />
+                <span style={{ fontSize: '13px', fontWeight: '600', color: '#2FA084' }}>
+                    {reply.authorName}
+                </span>
+            </div>
+            <p style={{ fontSize: '14px', color: '#1f2937', lineHeight: '1.6', margin: 0 }}>
+                {reply.body}
+            </p>
         </div>
     );
 }
