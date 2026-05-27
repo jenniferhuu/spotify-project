@@ -24,7 +24,7 @@ export default function Navbar() {
     const { pathname } = useLocation();
 
     return (
-        <nav className="flex flex-col items-center w-48 h-screen px-6 py-4 bg-[#1F6F5F] sticky top-0 border-r border-slate-200">
+        <nav className="flex flex-col items-center w-52 h-screen px-6 py-4 bg-[#1F6F5F] sticky top-0 border-r border-slate-200">
             <ul className="flex flex-col gap-5 w-full">
                 {links.map(({ to, label, icon }) => {
                     const active = pathname === to;
