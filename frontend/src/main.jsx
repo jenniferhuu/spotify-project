@@ -7,6 +7,9 @@ import "./index.css";
 import Home from "./pages/Home.jsx";
 import LikedSongs from "./pages/LikedSongs.jsx";
 import Login from "./pages/Login.jsx";
+import ForumsPage from "./pages/ForumsPage.jsx";
+import ThreadsPage from "./pages/ThreadsPage.jsx";
+import ThreadDetailPage from "./pages/ThreadDetailPage.jsx";
 
 const router = createBrowserRouter([
     {
@@ -24,6 +27,18 @@ const router = createBrowserRouter([
             {
                 path: "/likedsongs",
                 element: <LikedSongs />,
+            },
+            {
+                path: "/forums",
+                element: <ForumsPage />,
+            },
+            {
+                path: "/forums/:forumId",
+                element: <ThreadsPage />,
+            },
+            {
+                path: "/forums/:forumId/threads/:threadId",
+                element: <ThreadDetailPage />,
             },
         ],
     },
