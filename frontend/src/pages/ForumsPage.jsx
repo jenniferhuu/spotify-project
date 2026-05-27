@@ -69,14 +69,14 @@ export default function ForumsPage() {
                 {loading ? (
                     <p className="text-gray-500 text-sm">Loading...</p>
                 ) : forums.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No forums yet. Create one!</p>
+                    <p className="text-gray-500 text-sm">No forums yet. Create one</p>
                 ) : (
                     <div className="flex flex-col gap-3">
                         {forums.map(forum => (
                             <ForumCard
                                 key={forum.id}
                                 forum={forum}
-                                onClick={() => navigate(`/forums/${forum.id}`)}
+                                onClick={() => navigate(`/forums/${forum.id}`, { state: { forumTitle: forum.title } })}
                             />
                         ))}
                     </div>
