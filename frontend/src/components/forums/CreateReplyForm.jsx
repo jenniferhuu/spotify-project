@@ -25,21 +25,57 @@ export default function CreateReplyForm({ forumId, threadId, onReplyPosted }) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="bg-white rounded-md border border-gray-200 px-5 py-4">
-            <p className="text-sm font-medium text-gray-700 mb-2">Post a Reply</p>
+        <form
+            onSubmit={handleSubmit}
+            style={{
+                backgroundColor: '#fff',
+                border: '1px solid #d1d5db',
+                borderRadius: '12px',
+                padding: '20px 24px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+            }}
+        >
+            <p style={{ fontSize: '13px', fontWeight: '600', color: '#6b7280', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Post a Reply
+            </p>
             <textarea
                 value={body}
                 onChange={e => setBody(e.target.value)}
                 placeholder="Write your reply..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#2FA084] resize-none"
+                style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '10px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    resize: 'none',
+                    boxSizing: 'border-box',
+                    fontFamily: 'inherit',
+                    lineHeight: '1.5',
+                }}
                 rows={3}
                 required
             />
-            <div className="flex justify-end mt-2">
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button
                     type="submit"
                     disabled={loading}
-                    className="px-4 py-2 bg-[#2FA084] hover:bg-[#1F6F5F] text-white text-sm rounded-md transition-colors disabled:opacity-50"
+                    style={{
+                        padding: '10px 24px',
+                        backgroundColor: loading ? '#9ca3af' : '#2FA084',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '10px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                    }}
+                    onMouseEnter={e => { if (!loading) e.currentTarget.style.backgroundColor = '#1F6F5F'; }}
+                    onMouseLeave={e => { if (!loading) e.currentTarget.style.backgroundColor = '#2FA084'; }}
                 >
                     {loading ? 'Posting...' : 'Post Reply'}
                 </button>

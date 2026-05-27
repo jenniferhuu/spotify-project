@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import { createForum } from '../../api/forums';
 
+const fieldStyle = {
+    width: '100%',
+    padding: '12px 16px',
+    border: '1px solid #d1d5db',
+    borderRadius: '10px',
+    fontSize: '14px',
+    outline: 'none',
+    boxSizing: 'border-box',
+    fontFamily: 'inherit',
+};
+
 export default function CreateForumModal({ onClose, onCreated }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -14,8 +25,8 @@ export default function CreateForumModal({ onClose, onCreated }) {
             await createForum({
                 title,
                 description,
-                createdBy: 'temp-user', //waiting for auth
-                createdByName: 'Temp User', //waiting for auth
+                createdBy: 'temp-user',
+                createdByName: 'Temp User',
             });
             onCreated();
             onClose();
@@ -27,37 +38,37 @@ export default function CreateForumModal({ onClose, onCreated }) {
     }
 
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-                <h2 className="text-lg font-semibold text-[#1F6F5F] mb-4">Create Forum</h2>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+            <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '480px', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1F6F5F', margin: '0 0 24px' }}>Create Forum</h2>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <input
                         type="text"
                         placeholder="Forum title"
                         value={title}
                         onChange={e => setTitle(e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#2FA084]"
+                        style={fieldStyle}
                         required
                     />
                     <textarea
                         placeholder="Description (optional)"
                         value={description}
                         onChange={e => setDescription(e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#2FA084] resize-none"
-                        rows={3}
+                        style={{ ...fieldStyle, resize: 'none', lineHeight: '1.5' }}
+                        rows={4}
                     />
-                    <div className="flex justify-end gap-2">
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900"
+                            style={{ padding: '10px 20px', background: 'none', border: '1px solid #d1d5db', borderRadius: '10px', fontSize: '14px', color: '#6b7280', cursor: 'pointer' }}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 bg-[#2FA084] hover:bg-[#1F6F5F] text-white text-sm rounded-md transition-colors disabled:opacity-50"
+                            style={{ padding: '10px 24px', backgroundColor: loading ? '#9ca3af' : '#2FA084', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer' }}
                         >
                             {loading ? 'Creating...' : 'Create'}
                         </button>
