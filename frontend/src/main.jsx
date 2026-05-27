@@ -6,8 +6,13 @@ import App from "./App.jsx";
 import "./index.css";
 import Home from "./pages/Home.jsx";
 import LikedSongs from "./pages/LikedSongs.jsx";
+import Login from "./pages/Login.jsx";
 
 const router = createBrowserRouter([
+    {
+        path: "/login",
+        element: <Login />,
+    },
     {
         path: "/",
         element: <App />,
