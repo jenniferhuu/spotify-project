@@ -34,7 +34,7 @@ export default function Navbar() {
 
     return (
         <nav className="flex flex-col items-center w-52 h-screen px-6 py-4 bg-[#1F6F5F] sticky top-0 border-r border-slate-200">
-            <ul className="flex flex-col gap-5 w-full">
+            <ul className="flex flex-col gap-5 w-full flex-1">
                 {links.map(({ to, label, icon }) => {
                     const active = pathname === to;
                     return (
@@ -58,18 +58,19 @@ export default function Navbar() {
                         </li>
                     );
                 })}
-                <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 px-4 py-2 mt-auto w-full rounded-md text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 transition-colors duration-150"
-                >
-                    <img
-                        src={logoutIcon}
-                        alt="Logout icon"
-                        className="w-5 h-5 object-contain brightness-0 invert"
-                    />
-                    Logout
-                </button>
             </ul>
+
+            <button
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-4 py-2 w-full rounded-md text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 transition-colors duration-150"
+            >
+                <img
+                    src={logoutIcon}
+                    alt="Logout icon"
+                    className="w-5 h-5 object-contain brightness-0 invert"
+                />
+                Logout
+            </button>
         </nav>
     );
 }
