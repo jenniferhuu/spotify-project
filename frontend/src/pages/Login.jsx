@@ -1,7 +1,8 @@
+import { useAuth } from "../context/AuthProvider.jsx";
 export default function Login() {
+    const { loginWithSpotify } = useAuth();
     function handleLogin() {
-        // TODO: wire this to the backend OAuth endpoint
-        window.location.href = "http://localhost:3000/auth/spotify";
+        loginWithSpotify();
     }
 
     return (
@@ -83,9 +84,17 @@ export default function Login() {
 
                 <p className="text-xs text-slate-400 text-center">
                     By continuing you agree to our{" "}
-                    <a href="/terms" className="underline hover:text-slate-600">Terms</a>
-                    {" "}and{" "}
-                    <a href="/privacy" className="underline hover:text-slate-600">Privacy Policy</a>.
+                    <a href="/terms" className="underline hover:text-slate-600">
+                        Terms
+                    </a>{" "}
+                    and{" "}
+                    <a
+                        href="/privacy"
+                        className="underline hover:text-slate-600"
+                    >
+                        Privacy Policy
+                    </a>
+                    .
                 </p>
             </div>
         </div>
