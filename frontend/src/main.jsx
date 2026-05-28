@@ -5,12 +5,14 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import Home from "./pages/Home.jsx";
+import UserProfilePage from "./pages/UserProfilePage.jsx";
 import LikedSongs from "./pages/LikedSongs.jsx";
 import TopSongs from "./pages/topSongs.jsx";
 import TopArtists from "./pages/topArtists.jsx";
 import Discover from "./pages/Discover.jsx";
 import Login from "./pages/Login.jsx";
 import Callback from "./pages/Callback.jsx";
+import TopArtistsPage from "./pages/TopArtistsPage.jsx";
 import ForumsPage from "./pages/ForumsPage.jsx";
 import ThreadsPage from "./pages/ThreadsPage.jsx";
 import ThreadDetailPage from "./pages/ThreadDetailPage.jsx";
@@ -35,6 +37,10 @@ const router = createBrowserRouter([
                 element: <Home />,
             },
             {
+                path: "/profile",
+                element: <UserProfilePage />,
+            },
+            {
                 path: "/likedsongs",
                 element: <LikedSongs />,
             },
@@ -49,6 +55,10 @@ const router = createBrowserRouter([
             {
                 path: "/discover",
                 element: <Discover />,
+            },
+            {
+                path: "/topartists",
+                element: <TopArtistsPage />,
             },
             {
                 path: "/forums",
