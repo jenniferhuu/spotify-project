@@ -4,6 +4,7 @@ import {
     getDocs,
     getDoc,
     addDoc,
+    deleteDoc,
     doc,
     query,
     orderBy,
@@ -34,6 +35,10 @@ export async function createForum(data) {
         createdAt: serverTimestamp(),
     });
     return { id: docRef.id };
+}
+
+export async function deleteForum(forumId) {
+    await deleteDoc(doc(db, "forums", forumId));
 }
 
 //Threads
@@ -70,6 +75,11 @@ export async function getThread(forumId, threadId) {
     return { id: snap.id, ...snap.data() };
 }
 
+export async function deleteThread(forumId, threadId) {
+    await deleteDoc(doc(db, "forums", forumId, "threads", threadId));
+    await updateDoc(doc(db, "forums", forumId), { threadCount: increment(-1) });
+}
+
 //replies
 export async function listReplies(forumId, threadId) {
     const q = query(
@@ -78,6 +88,17 @@ export async function listReplies(forumId, threadId) {
     );
     const snapshot = await getDocs(q);
     return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function getReply(forumId, threadId, replyId) {
+    const snap = await getDoc(doc(db, "forums", forumId, "threads", threadId, "replies", replyId));
+    if (!snap.exists()) throw new Error("Reply not found");
+    return { id: snap.id, ...snap.data() };
+}
+
+export async function deleteReply(forumId, threadId, replyId) {
+    await deleteDoc(doc(db, "forums", forumId, "threads", threadId, "replies", replyId));
+    await updateDoc(doc(db, "forums", forumId, "threads", threadId), { replies: increment(-1) });
 }
 
 export async function createReply(forumId, threadId, data) {

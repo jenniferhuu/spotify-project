@@ -6,11 +6,11 @@ export default defineConfig({
     plugins: [react(), tailwindcss()],
     server: {
         proxy: {
-            '/api': 'http://localhost:5000',
-            '/auth': 'http://localhost:5000',
-            '/songs': 'http://localhost:5000',
-            '/topSongs': 'http://localhost:5000',
-            '/users': 'http://localhost:5000',
+            '/api': 'http://127.0.0.1:5000',
+            '/auth': 'http://127.0.0.1:5000',
+            '/songs': 'http://127.0.0.1:5000',
+            '/topSongs': 'http://127.0.0.1:5000',
+            '/users': 'http://127.0.0.1:5000',
         },
     },
 });

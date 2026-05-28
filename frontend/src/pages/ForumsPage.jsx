@@ -4,11 +4,11 @@ import Navbar from '../components/Navbar';
 import ForumCard from '../components/forums/ForumCard';
 import CreateForumModal from '../components/forums/CreateForumModal';
 import { SearchIcon, PlusIcon } from '../components/forums/ForumIcons';
-import { fetchForums, searchForums } from '../api/forums';
+import { fetchForums, searchForums, deleteForum } from '../api/forums';
 import { useAuth } from '../context/AuthProvider';
 
 export default function ForumsPage() {
-    const { isAuthenticated } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const [forums, setForums] = useState([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
@@ -47,6 +47,32 @@ export default function ForumsPage() {
         }
     }
 
+    async function handleDelete(forumId) {
+        if (!user) return;
+        try {
+            await deleteForum(forumId, user.spotifyId);
+            loadForums();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    const myForums = isAuthenticated
+        ? forums.filter(f => f.createdBy === user.spotifyId)
+        : [];
+    const otherForums = isAuthenticated
+        ? forums.filter(f => f.createdBy !== user.spotifyId)
+        : forums;
+
+    const sectionLabel = {
+        fontSize: '11px',
+        fontWeight: '600',
+        color: '#9ca3af',
+        textTransform: 'uppercase',
+        letterSpacing: '0.08em',
+        margin: 0,
+    };
+
     return (
         <div className="flex h-screen">
             <Navbar />
@@ -67,7 +93,7 @@ export default function ForumsPage() {
                         </span>
                     </div>
 
-                    {/* Section 2 — Forum name + search + create */}
+                    {/* Section 2 — Page title + search + create */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <h1 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: '700', color: '#1F6F5F', margin: 0 }}>
                             MUSIC FORUMS
@@ -124,27 +150,49 @@ export default function ForumsPage() {
                         </div>
                     </div>
 
-                    {/* Section 3 — Cards */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        <p style={{ fontSize: '11px', fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
-                            Forums
-                        </p>
-                        {loading ? (
-                            <p className="text-gray-500 text-sm">Loading...</p>
-                        ) : forums.length === 0 ? (
-                            <p className="text-gray-500 text-sm">No forums yet. Create one!</p>
-                        ) : (
+                    {/* Section 3 — Forum cards */}
+                    {loading ? (
+                        <p style={{ color: '#6b7280', fontSize: '14px' }}>Loading...</p>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+
+                            {/* My Forums */}
+                            {isAuthenticated && myForums.length > 0 && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <p style={sectionLabel}>My Forums</p>
+                                    {myForums.map(forum => (
+                                        <ForumCard
+                                            key={forum.id}
+                                            forum={forum}
+                                            onClick={() => navigate(`/forums/${forum.id}`, { state: { forumTitle: forum.title } })}
+                                            onDelete={handleDelete}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Other Forums */}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {forums.map(forum => (
-                                    <ForumCard
-                                        key={forum.id}
-                                        forum={forum}
-                                        onClick={() => navigate(`/forums/${forum.id}`, { state: { forumTitle: forum.title } })}
-                                    />
-                                ))}
+                                <p style={sectionLabel}>
+                                    {isAuthenticated && myForums.length > 0 ? 'Other Forums' : 'Forums'}
+                                </p>
+                                {otherForums.length === 0 ? (
+                                    <p style={{ color: '#6b7280', fontSize: '14px' }}>
+                                        {forums.length === 0 ? 'No forums yet. Create one!' : 'No other forums.'}
+                                    </p>
+                                ) : (
+                                    otherForums.map(forum => (
+                                        <ForumCard
+                                            key={forum.id}
+                                            forum={forum}
+                                            onClick={() => navigate(`/forums/${forum.id}`, { state: { forumTitle: forum.title } })}
+                                        />
+                                    ))
+                                )}
                             </div>
-                        )}
-                    </div>
+
+                        </div>
+                    )}
 
                 </div>
             </main>

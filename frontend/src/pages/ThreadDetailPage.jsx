@@ -4,9 +4,11 @@ import Navbar from '../components/Navbar';
 import ReplyCard from '../components/forums/ReplyCard';
 import CreateReplyForm from '../components/forums/CreateReplyForm';
 import { ArrowLeftIcon, UserIcon } from '../components/forums/ForumIcons';
-import { fetchThreadDetail } from '../api/forums';
+import { fetchThreadDetail, deleteThread, deleteReply } from '../api/forums';
+import { useAuth } from '../context/AuthProvider';
 
 export default function ThreadDetailPage() {
+    const { user } = useAuth();
     const { forumId, threadId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -31,6 +33,26 @@ export default function ThreadDetailPage() {
             console.error(err);
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function handleDeleteThread() {
+        if (!user) return;
+        try {
+            await deleteThread(forumId, threadId, user.spotifyId);
+            navigate(`/forums/${forumId}`, { state: { forumTitle } });
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function handleDeleteReply(replyId) {
+        if (!user) return;
+        try {
+            await deleteReply(forumId, threadId, replyId, user.spotifyId);
+            loadThread();
+        } catch (err) {
+            console.error(err);
         }
     }
 
@@ -81,11 +103,23 @@ export default function ThreadDetailPage() {
                         <>
                             {/* Section 2 — Original post body */}
                             <div style={cardStyle}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                                    <UserIcon className="w-4 h-4" style={{ color: '#2FA084' }} />
-                                    <span style={{ fontSize: '13px', fontWeight: '600', color: '#2FA084' }}>
-                                        {thread.authorName}
-                                    </span>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <UserIcon className="w-4 h-4" style={{ color: '#2FA084' }} />
+                                        <span style={{ fontSize: '13px', fontWeight: '600', color: '#2FA084' }}>
+                                            {thread.authorName}
+                                        </span>
+                                    </div>
+                                    {user && thread.authorID === user.spotifyId && (
+                                        <button
+                                            onClick={handleDeleteThread}
+                                            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: '1px solid #fca5a5', borderRadius: '6px', color: '#ef4444', fontSize: '12px', fontWeight: '600', padding: '5px 12px', cursor: 'pointer' }}
+                                            onMouseEnter={e => e.currentTarget.style.backgroundColor = '#fee2e2'}
+                                            onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                                        >
+                                            Delete Thread
+                                        </button>
+                                    )}
                                 </div>
                                 <p style={{ fontSize: '14px', color: '#1f2937', lineHeight: '1.6', margin: 0 }}>
                                     {thread.body}
@@ -102,7 +136,11 @@ export default function ThreadDetailPage() {
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                         {replies.map(reply => (
-                                            <ReplyCard key={reply.id} reply={reply} />
+                                            <ReplyCard
+                                                key={reply.id}
+                                                reply={reply}
+                                                onDelete={user && reply.authorID === user.spotifyId ? handleDeleteReply : undefined}
+                                            />
                                         ))}
                                     </div>
                                 )}
