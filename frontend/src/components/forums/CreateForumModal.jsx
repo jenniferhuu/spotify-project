@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createForum } from '../../api/forums';
+import { useAuth } from '../../context/AuthProvider';
 
 const fieldStyle = {
     width: '100%',
@@ -13,20 +14,21 @@ const fieldStyle = {
 };
 
 export default function CreateForumModal({ onClose, onCreated }) {
+    const { user } = useAuth();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
 
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!title.trim()) return;
+        if (!title.trim() || !user) return;
         try {
             setLoading(true);
             await createForum({
                 title,
                 description,
-                createdBy: 'temp-user',
-                createdByName: 'Temp User',
+                createdBy: user.spotifyId,
+                createdByName: user.username,
             });
             onCreated();
             onClose();

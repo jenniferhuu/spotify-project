@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createThread } from '../../api/forums';
+import { useAuth } from '../../context/AuthProvider';
 
 const fieldStyle = {
     width: '100%',
@@ -13,20 +14,21 @@ const fieldStyle = {
 };
 
 export default function CreateThreadModal({ forumId, onClose, onCreated }) {
+    const { user } = useAuth();
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('');
     const [loading, setLoading] = useState(false);
 
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!title.trim() || !body.trim()) return;
+        if (!title.trim() || !body.trim() || !user) return;
         try {
             setLoading(true);
             await createThread(forumId, {
                 title,
                 body,
-                authorID: 'temp-user',
-                authorName: 'Temp User',
+                authorID: user.spotifyId,
+                authorName: user.username,
             });
             onCreated();
             onClose();

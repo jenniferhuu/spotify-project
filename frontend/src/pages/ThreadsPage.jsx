@@ -5,8 +5,10 @@ import ThreadCard from '../components/forums/ThreadCard';
 import CreateThreadModal from '../components/forums/CreateThreadModal';
 import { SearchIcon, PlusIcon, ArrowLeftIcon } from '../components/forums/ForumIcons';
 import { fetchThreads, searchThreads } from '../api/forums';
+import { useAuth } from '../context/AuthProvider';
 
 export default function ThreadsPage() {
+    const { isAuthenticated } = useAuth();
     const { forumId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -102,22 +104,24 @@ export default function ThreadsPage() {
                                 <SearchIcon className="w-5 h-5" />
                             </span>
                         </div>
-                        <button
-                            onClick={() => setShowModal(true)}
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '8px',
-                                backgroundColor: '#2FA084', color: '#fff',
-                                padding: '0 28px', height: '52px',
-                                borderRadius: '12px', border: 'none',
-                                fontSize: '14px', fontWeight: '600',
-                                cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1F6F5F'}
-                            onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2FA084'}
-                        >
-                            <PlusIcon className="w-4 h-4" />
-                            Create Thread
-                        </button>
+                        {isAuthenticated && (
+                            <button
+                                onClick={() => setShowModal(true)}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '8px',
+                                    backgroundColor: '#2FA084', color: '#fff',
+                                    padding: '0 28px', height: '52px',
+                                    borderRadius: '12px', border: 'none',
+                                    fontSize: '14px', fontWeight: '600',
+                                    cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1F6F5F'}
+                                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2FA084'}
+                            >
+                                <PlusIcon className="w-4 h-4" />
+                                Create Thread
+                            </button>
+                        )}
                     </div>
 
                     {/* Section 3 — Thread list */}

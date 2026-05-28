@@ -1,9 +1,52 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { createReply } from '../../api/forums';
+import { useAuth } from '../../context/AuthProvider';
 
 export default function CreateReplyForm({ forumId, threadId, onReplyPosted }) {
+    const { user, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
     const [body, setBody] = useState('');
     const [loading, setLoading] = useState(false);
+
+    if (!isAuthenticated) {
+        return (
+            <div style={{
+                backgroundColor: '#fff',
+                border: '1px solid #d1d5db',
+                borderRadius: '12px',
+                padding: '20px 24px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '16px',
+            }}>
+                <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+                    You need to be logged in to post a reply.
+                </p>
+                <button
+                    onClick={() => navigate('/login')}
+                    style={{
+                        padding: '10px 24px',
+                        backgroundColor: '#2FA084',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '10px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1F6F5F'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2FA084'}
+                >
+                    Log in
+                </button>
+            </div>
+        );
+    }
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -12,8 +55,8 @@ export default function CreateReplyForm({ forumId, threadId, onReplyPosted }) {
             setLoading(true);
             await createReply(forumId, threadId, {
                 body,
-                authorID: 'temp-user',
-                authorName: 'Temp User',
+                authorID: user.spotifyId,
+                authorName: user.username,
             });
             setBody('');
             onReplyPosted();

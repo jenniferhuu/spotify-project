@@ -5,8 +5,10 @@ import ForumCard from '../components/forums/ForumCard';
 import CreateForumModal from '../components/forums/CreateForumModal';
 import { SearchIcon, PlusIcon } from '../components/forums/ForumIcons';
 import { fetchForums, searchForums } from '../api/forums';
+import { useAuth } from '../context/AuthProvider';
 
 export default function ForumsPage() {
+    const { isAuthenticated } = useAuth();
     const [forums, setForums] = useState([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
@@ -93,30 +95,32 @@ export default function ForumsPage() {
                                     <SearchIcon className="w-5 h-5" />
                                 </span>
                             </div>
-                            <button
-                                onClick={() => setShowModal(true)}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    backgroundColor: '#2FA084',
-                                    color: '#fff',
-                                    padding: '0 28px',
-                                    borderRadius: '12px',
-                                    border: 'none',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    cursor: 'pointer',
-                                    whiteSpace: 'nowrap',
-                                    flexShrink: 0,
-                                    height: '52px',
-                                }}
-                                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1F6F5F'}
-                                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2FA084'}
-                            >
-                                <PlusIcon className="w-4 h-4" />
-                                Create Forum
-                            </button>
+                            {isAuthenticated && (
+                                <button
+                                    onClick={() => setShowModal(true)}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        backgroundColor: '#2FA084',
+                                        color: '#fff',
+                                        padding: '0 28px',
+                                        borderRadius: '12px',
+                                        border: 'none',
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        whiteSpace: 'nowrap',
+                                        flexShrink: 0,
+                                        height: '52px',
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1F6F5F'}
+                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2FA084'}
+                                >
+                                    <PlusIcon className="w-4 h-4" />
+                                    Create Forum
+                                </button>
+                            )}
                         </div>
                     </div>
 
