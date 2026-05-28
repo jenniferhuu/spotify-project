@@ -43,7 +43,10 @@ router.get("/", async (req, res) => {
             id: artist.id,
             rank: index + 1,
             name: artist.name,
-            genre: artist.genres?.[0] || "Unknown genre",
+            genre:
+                artist.genres && artist.genres.length > 0
+                ? artist.genres.slice(0, 2).join(", ")
+                : "No genre listed",
             image: artist.images?.[0]?.url || "",
             spotifyUrl: artist.external_urls?.spotify || "",
         }));

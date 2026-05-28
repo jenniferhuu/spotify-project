@@ -12,6 +12,23 @@ function decodeUser(encodedUser) {
     return JSON.parse(window.atob(paddedBase64));
 }
 
+function saveSpotifySession(user, token) {
+    if (!token) return;
+
+    window.localStorage.setItem("songs_app_user", JSON.stringify(user));
+    window.localStorage.setItem("songs_app_token", token);
+
+    // Compatibility keys used by TopSongs, TopArtists, and Profile pages.
+    window.localStorage.setItem("spotifyToken", token);
+    window.localStorage.setItem("accessToken", token);
+    window.localStorage.setItem("access_token", token);
+
+    // Compatibility user keys used by profile helpers.
+    window.localStorage.setItem("spotifyUser", JSON.stringify(user));
+    window.localStorage.setItem("user", JSON.stringify(user));
+    window.localStorage.setItem("currentUser", JSON.stringify(user));
+}
+
 export default function SpotifyCallBack() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -34,7 +51,13 @@ export default function SpotifyCallBack() {
         }
 
         try {
-            completeSpotifyLogin(decodeUser(encodedUser), token);
+            const decodedUser = decodeUser(encodedUser);
+
+            completeSpotifyLogin(decodedUser, token);
+            saveSpotifySession(decodedUser, token);
+
+            console.log("Spotify login completed.");
+            console.log("Spotify token saved:", Boolean(token));
 
             navigate("/", { replace: true });
         } catch (decodeError) {

@@ -8,6 +8,15 @@ const filters = [
     { id: "lastMonth", label: "Last Month" },
 ];
 
+function getSpotifyToken() {
+    return (
+        localStorage.getItem("songs_app_token") ||
+        localStorage.getItem("spotifyToken") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("access_token")
+    );
+}
+
 export default function TopArtistsPage() {
     const [selectedFilter, setSelectedFilter] = useState("allTime");
     const [artists, setArtists] = useState([]);
@@ -22,17 +31,42 @@ export default function TopArtistsPage() {
             setError("");
 
             try {
-                const response = await axios.get("http://127.0.0.1:5001/topArtists", {
-                    params: {
-                        range: selectedFilter,
+                const token = getSpotifyToken();
+
+                console.log("Top artists token found:", Boolean(token));
+                console.log(
+                    "Top artists token preview:",
+                    token ? token.slice(0, 12) : "none",
+                );
+
+                if (!token) {
+                    throw new Error("Missing Spotify token");
+                }
+
+                const response = await axios.get(
+                    "http://127.0.0.1:5001/topArtists",
+                    {
+                        params: {
+                            range: selectedFilter,
+                        },
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
                     },
-                });
+                );
+
+                console.log("Top artists response:", response.data);
 
                 if (isMounted) {
                     setArtists(response.data.items ?? []);
                 }
             } catch (fetchError) {
                 console.error("Failed to fetch top artists:", fetchError);
+                console.error(
+                    "Failed request:",
+                    fetchError.response?.data || fetchError,
+                );
+                console.error("Status:", fetchError.response?.status);
 
                 if (isMounted) {
                     setError("Unable to load top artists right now.");

@@ -8,6 +8,14 @@ const filters = [
     { id: "lastMonth", label: "Last Month" },
 ];
 
+function getSpotifyToken() {
+    return (
+        localStorage.getItem("spotifyToken") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("access_token")
+    );
+}
+
 export default function TopSongs() {
     const [selectedFilter, setSelectedFilter] = useState("allTime");
     const [songs, setSongs] = useState([]);
@@ -22,8 +30,13 @@ export default function TopSongs() {
             setError("");
 
             try {
-                const token = localStorage.getItem("spotifyToken");
-
+                const token = getSpotifyToken();
+				console.log("Spotify token found:", Boolean(token));
+				console.log("Token preview:", token ? token.slice(0, 12) : "none");
+				console.log("All localStorage keys:", Object.keys(localStorage));
+				console.log("spotifyToken:", localStorage.getItem("spotifyToken"));
+				console.log("accessToken:", localStorage.getItem("accessToken"));
+				console.log("access_token:", localStorage.getItem("access_token"));
                 if (!token) {
                     throw new Error("Missing Spotify token");
                 }
@@ -42,7 +55,8 @@ export default function TopSongs() {
                 }
             } catch (fetchError) {
                 console.error("Failed to fetch top songs:", fetchError);
-
+				console.error("Failed request:", fetchError.response?.data || fetchError);
+				console.error("Status:", fetchError.response?.status);
                 if (isMounted) {
                     setError("Unable to load top songs right now.");
                     setSongs([]);
