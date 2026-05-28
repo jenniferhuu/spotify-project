@@ -4,6 +4,7 @@ import express from "express";
 import forumsRouter from "./routes/forums.js";
 import songsRouter from "./routes/songs.js";
 import topSongsRouter from "./routes/topSongs.js";
+import topArtistsRouter from "./routes/topArtists.js";
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
 
@@ -19,6 +20,7 @@ app.use("/api/forums", forumsRouter);
 app.use("/songs", songsRouter);
 app.use("/topSongs", topSongsRouter);
 app.use("/users", usersRouter);
+app.use("/topArtists", topArtistsRouter);
 
 app.listen(port, host, () => {
     console.log(`Server is running at http://${host}:${port}`);

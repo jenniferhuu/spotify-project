@@ -15,7 +15,7 @@ const links = [
     { to: "/", label: "Home", icon: homeIcon },
     { to: "/profile", label: "Profile", icon: profileIcon },
     { to: "/likedsongs", label: "Liked Songs", icon: likeIcon },
-    { to: "/topartists", label: "Top Artists", icon: artistIcon },
+    { to: "/topArtists", label: "Top Artists", icon: artistIcon },
     { to: "/topSongs", label: "Top Songs", icon: songIcon },
     { to: "/discover", label: "Discover", icon: discoverIcon },
     { to: "/forums", label: "Forums", icon: forumIcon },
