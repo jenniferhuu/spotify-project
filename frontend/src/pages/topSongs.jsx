@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Navbar from '../components/Navbar.jsx'
-import { useAuth } from '../context/AuthProvider.jsx'
+import { useAuth } from '../context/useAuth.js'
 
 const filters = [
 	{ id: 'allTime', label: 'All Time' },
