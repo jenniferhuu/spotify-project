@@ -10,6 +10,9 @@ import TopSongs from "./pages/topSongs.jsx";
 import Discover from "./pages/Discover.jsx";
 import Login from "./pages/Login.jsx";
 import Callback from "./pages/Callback.jsx";
+import ForumsPage from "./pages/ForumsPage.jsx";
+import ThreadsPage from "./pages/ThreadsPage.jsx";
+import ThreadDetailPage from "./pages/ThreadDetailPage.jsx";
 
 import { AuthProvider } from "./context/AuthProvider.jsx";
 
@@ -41,6 +44,18 @@ const router = createBrowserRouter([
             {
                 path: "/discover",
                 element: <Discover />,
+            },
+            {
+                path: "/forums",
+                element: <ForumsPage />,
+            },
+            {
+                path: "/forums/:forumId",
+                element: <ThreadsPage />,
+            },
+            {
+                path: "/forums/:forumId/threads/:threadId",
+                element: <ThreadDetailPage />,
             },
         ],
     },
