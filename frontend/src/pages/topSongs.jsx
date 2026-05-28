@@ -120,11 +120,20 @@ export default function TopSongs() {
 						topThree.map((song) => (
 							<article
 								key={song.rank}
-								className="flex min-h-44 flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+								className="flex min-h-44 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
 							>
+								{song.imageUrl ? (
+									<img
+										src={song.imageUrl}
+										alt={`${song.album || song.title} cover`}
+										className="aspect-square w-full rounded-xl object-cover shadow-sm"
+									/>
+								) : (
+									<div className="aspect-square w-full rounded-xl bg-gradient-to-br from-slate-200 to-slate-100" />
+								)}
 								<div className="space-y-2">
 									<p className="text-sm font-medium uppercase tracking-[0.22em] text-slate-500">
-										Rank {song.rank}
+										# {song.rank}
 									</p>
 									<h2 className="text-xl font-semibold text-slate-950">
 										{song.title}
@@ -145,7 +154,8 @@ export default function TopSongs() {
 						<table className="w-full border-collapse text-left">
 							<thead className="bg-slate-50">
 								<tr className="text-sm font-medium text-slate-600">
-									<th className="px-5 py-4">Rank</th>
+									<th className="px-5 py-4">#</th>
+									<th className="px-5 py-4">Cover</th>
 									<th className="px-5 py-4">Song</th>
 									<th className="px-5 py-4">Artist</th>
 								</tr>
@@ -154,6 +164,17 @@ export default function TopSongs() {
 								{visibleRemainingSongs.map((song) => (
 									<tr key={song.rank} className="border-t border-slate-200 text-slate-700">
 										<td className="px-5 py-4 font-medium text-slate-500">{song.rank}</td>
+										<td className="px-5 py-4">
+											{song.imageUrl ? (
+												<img
+													src={song.imageUrl}
+													alt={`${song.album || song.title} cover`}
+													className="h-8 w-8 rounded-lg object-cover shadow-sm"
+												/>
+											) : (
+												<div className="h-8 w-8 rounded-lg bg-slate-100" />
+											)}
+										</td>
 										<td className="px-5 py-4 font-medium text-slate-900">{song.title}</td>
 										<td className="px-5 py-4 text-slate-600">{song.artist}</td>
 									</tr>
