@@ -14,6 +14,7 @@ export default function TopSongs() {
 	const [songs, setSongs] = useState([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState('')
+	const [visibleSongCount, setVisibleSongCount] = useState(10)
 	const { token } = useAuth()     // Get the Spotify access token from context
 
     // Use a flag to prevent state updates on unmounted component
@@ -24,12 +25,14 @@ export default function TopSongs() {
 			if (!token) {
 				setSongs([])
 				setError('Please log in with Spotify to view your top songs.')
+				setVisibleSongCount(10)
 				setIsLoading(false)
 				return
 			}
 
 			setIsLoading(true)
 			setError('')
+			setVisibleSongCount(10)
 
             // Fetch top songs, return different error message if the request fails
 			try {
@@ -66,6 +69,8 @@ export default function TopSongs() {
 
 	const topThree = songs.slice(0, 3)
 	const remainingSongs = songs.slice(3)
+	const visibleRemainingSongs = remainingSongs.slice(0, visibleSongCount)
+	const canShowMoreSongs = visibleSongCount < remainingSongs.length
 
 	return (
 		<div className="min-h-screen bg-slate-50 overflow-x-hidden">
@@ -146,7 +151,7 @@ export default function TopSongs() {
 								</tr>
 							</thead>
 							<tbody>
-								{remainingSongs.map((song) => (
+								{visibleRemainingSongs.map((song) => (
 									<tr key={song.rank} className="border-t border-slate-200 text-slate-700">
 										<td className="px-5 py-4 font-medium text-slate-500">{song.rank}</td>
 										<td className="px-5 py-4 font-medium text-slate-900">{song.title}</td>
@@ -155,6 +160,21 @@ export default function TopSongs() {
 								))}
 							</tbody>
 						</table>
+						{canShowMoreSongs ? (
+							<div className="border-t border-slate-200 bg-slate-50 px-5 py-4">
+								<button
+									type="button"
+									onClick={() =>
+										setVisibleSongCount((currentCount) =>
+											Math.min(currentCount + 10, remainingSongs.length),
+										)
+									}
+									className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400"
+								>
+									See more songs
+								</button>
+							</div>
+						) : null}
 					</div>
 				</section>
 			</main>

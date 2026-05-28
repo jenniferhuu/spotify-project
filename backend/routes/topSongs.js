@@ -65,7 +65,7 @@ router.get("/", async (req, res) => {
 		const requestedRange = req.query.range || "allTime";
 		const timeRange = spotifyTimeRanges[requestedRange] || "long_term";
 		const response = await fetch(
-			`${spotifyApiUrl}/me/top/tracks?time_range=${timeRange}&limit=10`,
+			`${spotifyApiUrl}/me/top/tracks?time_range=${timeRange}&limit=30`,
 			{
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
