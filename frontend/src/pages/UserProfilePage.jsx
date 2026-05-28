@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar.jsx";
 
@@ -28,11 +29,36 @@ function getStoredSpotifyUser() {
     return {};
 }
 
+function cleanHandle(value) {
+    return String(value || "")
+        .replace(/^@+/, "")
+        .replace(/\s+/g, "")
+        .trim();
+}
+
+function splitDisplayName(name) {
+    const parts = String(name || "User").trim().split(/\s+/);
+    const firstName = parts[0] || "User";
+    const lastName = parts.slice(1).join(" ");
+
+    return { firstName, lastName };
+}
+
+function getProfileName(profile) {
+    return [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "User";
+}
+
 function UserProfilePage() {
     const spotifyUser = getStoredSpotifyUser();
 
-    const displayName = spotifyUser.username || spotifyUser.display_name || "User";
+    const spotifyDisplayName =
+        spotifyUser.display_name || spotifyUser.name || spotifyUser.username || "User";
     const profilePic = spotifyUser.profilePic || spotifyUser.images?.[0]?.url || "";
+    const initialName = splitDisplayName(spotifyDisplayName);
+    const initialHandle =
+        cleanHandle(spotifyUser.handle || spotifyUser.id || spotifyUser.username) ||
+        cleanHandle(spotifyDisplayName) ||
+        "user";
 
     const [isEditing, setIsEditing] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -42,26 +68,20 @@ function UserProfilePage() {
     const [likedSongs, setLikedSongs] = useState([]);
 
     const [profile, setProfile] = useState({
-        username: displayName,
+        firstName: initialName.firstName,
+        lastName: initialName.lastName,
+        handle: initialHandle,
         bio: "User bio",
         joinDate: "May 2026",
         isPublic: true,
         messagePermission: "Everyone",
-        profileLink: `${window.location.origin}/profile`,
+        profileLink: `${window.location.origin}/profile/${initialHandle}`,
         showTopArtists: true,
         showTopSongs: true,
         showLikedSongs: true,
         artistRange: "allTime",
         songRange: "allTime",
     });
-
-    useEffect(() => {
-        setProfile((prev) => ({
-            ...prev,
-            username: displayName,
-            profileLink: `${window.location.origin}/profile/${displayName}`,
-        }));
-    }, [displayName]);
 
     useEffect(() => {
         async function loadProfileData() {
@@ -107,10 +127,24 @@ function UserProfilePage() {
     function handleChange(event) {
         const { name, value, type, checked } = event.target;
 
-        setProfile((prev) => ({
-            ...prev,
-            [name]: type === "checkbox" ? checked : value,
-        }));
+        setProfile((prev) => {
+            if (name === "handle") {
+                const cleanedHandle = cleanHandle(value);
+
+                return {
+                    ...prev,
+                    handle: cleanedHandle,
+                    profileLink: `${window.location.origin}/profile/${
+                        cleanedHandle || "user"
+                    }`,
+                };
+            }
+
+            return {
+                ...prev,
+                [name]: type === "checkbox" ? checked : value,
+            };
+        });
     }
 
     function updateRange(field, value) {
@@ -134,6 +168,8 @@ function UserProfilePage() {
         setIsEditing(false);
     }
 
+    const profileName = getProfileName(profile);
+    const handleText = profile.handle || "user";
     const previewArtists = topArtists.slice(0, 4);
     const previewSongs = topSongs.slice(0, 3);
     const previewLikedSongs = likedSongs.slice(0, 4);
@@ -176,7 +212,7 @@ function UserProfilePage() {
                                         {profilePic ? (
                                             <img
                                                 src={profilePic}
-                                                alt={`${profile.username} profile`}
+                                                alt={`${profileName} profile`}
                                                 className="h-24 w-24 rounded-full object-cover bg-[#d9d9d9]"
                                             />
                                         ) : (
@@ -188,30 +224,83 @@ function UserProfilePage() {
 
                                     <div>
                                         {isEditing ? (
-                                            <div className="grid gap-3">
-                                                <input
-                                                    name="username"
-                                                    value={profile.username}
-                                                    onChange={handleChange}
-                                                    className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-                                                    placeholder="Username"
-                                                />
+                                            <div className="grid gap-4">
+                                                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                                                    <h3 className="mb-3 text-sm font-bold">
+                                                        Edit Name
+                                                    </h3>
 
-                                                <textarea
-                                                    name="bio"
-                                                    value={profile.bio}
-                                                    onChange={handleChange}
-                                                    className="min-h-24 resize-none rounded-md border border-gray-300 px-3 py-2 text-sm"
-                                                    placeholder="Bio"
-                                                />
+                                                    <div className="grid gap-3 sm:grid-cols-2">
+                                                        <div>
+                                                            <label className="mb-1 block text-xs font-semibold text-gray-500">
+                                                                First Name
+                                                            </label>
+                                                            <input
+                                                                name="firstName"
+                                                                value={profile.firstName}
+                                                                onChange={handleChange}
+                                                                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+                                                                placeholder="First name"
+                                                            />
+                                                        </div>
+
+                                                        <div>
+                                                            <label className="mb-1 block text-xs font-semibold text-gray-500">
+                                                                Last Name
+                                                            </label>
+                                                            <input
+                                                                name="lastName"
+                                                                value={profile.lastName}
+                                                                onChange={handleChange}
+                                                                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+                                                                placeholder="Last name"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                                                    <h3 className="mb-3 text-sm font-bold">
+                                                        Customize Username Handle
+                                                    </h3>
+
+                                                    <label className="mb-1 block text-xs font-semibold text-gray-500">
+                                                        Username Handle
+                                                    </label>
+                                                    <div className="flex items-center rounded-md border border-gray-300 bg-white px-3 py-2">
+                                                        <span className="mr-1 text-sm text-gray-500">
+                                                            @
+                                                        </span>
+                                                        <input
+                                                            name="handle"
+                                                            value={profile.handle}
+                                                            onChange={handleChange}
+                                                            className="min-w-0 flex-1 border-none bg-transparent text-sm outline-none"
+                                                            placeholder="username"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label className="mb-1 block text-xs font-semibold text-gray-500">
+                                                        Bio
+                                                    </label>
+                                                    <textarea
+                                                        name="bio"
+                                                        value={profile.bio}
+                                                        onChange={handleChange}
+                                                        className="min-h-24 w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm"
+                                                        placeholder="Bio"
+                                                    />
+                                                </div>
                                             </div>
                                         ) : (
                                             <>
                                                 <h2 className="text-xl font-bold">
-                                                    {profile.username}
+                                                    {profileName}
                                                 </h2>
                                                 <p className="mt-1 text-sm text-gray-500">
-                                                    @{profile.username}
+                                                    @{handleText}
                                                 </p>
                                                 <p className="mt-4 max-w-xl text-base">
                                                     {profile.bio}
@@ -392,7 +481,7 @@ function UserProfilePage() {
                                     {profilePic ? (
                                         <img
                                             src={profilePic}
-                                            alt={`${profile.username} profile`}
+                                            alt={`${profileName} profile`}
                                             className="h-24 w-24 rounded-full border-4 border-white object-cover bg-[#d9d9d9]"
                                         />
                                     ) : (
@@ -404,10 +493,10 @@ function UserProfilePage() {
 
                                 <div className="px-7 pb-5 pt-2">
                                     <h3 className="text-lg font-bold">
-                                        {profile.username}
+                                        {profileName}
                                     </h3>
                                     <p className="text-sm text-gray-600">
-                                        @{profile.username}
+                                        @{handleText}
                                     </p>
                                     <p className="mt-2 text-sm">{profile.bio}</p>
                                 </div>
@@ -415,6 +504,7 @@ function UserProfilePage() {
                                 {profile.showTopArtists && (
                                     <PreviewSection
                                         title={`Top Artists (${getRangeLabel(profile.artistRange)})`}
+                                        viewAllPath="/topartists"
                                     >
                                         {previewArtists.length === 0 ? (
                                             <EmptyPreview message="No top artists loaded yet." />
@@ -456,6 +546,7 @@ function UserProfilePage() {
                                 {profile.showTopSongs && (
                                     <PreviewSection
                                         title={`Top Songs (${getRangeLabel(profile.songRange)})`}
+                                        viewAllPath="/topsongs"
                                     >
                                         {previewSongs.length === 0 ? (
                                             <EmptyPreview message="No top songs loaded yet." />
@@ -479,6 +570,7 @@ function UserProfilePage() {
                                                         "Artist name";
 
                                                     const image =
+                                                        song.image ||
                                                         song.album?.images?.[0]?.url ||
                                                         song.track?.album?.images?.[0]?.url;
 
@@ -513,7 +605,10 @@ function UserProfilePage() {
                                 )}
 
                                 {profile.showLikedSongs && (
-                                    <PreviewSection title="Recently Liked">
+                                    <PreviewSection
+                                        title="Recently Liked"
+                                        viewAllPath="/likedsongs"
+                                    >
                                         {previewLikedSongs.length === 0 ? (
                                             <EmptyPreview message="No liked songs loaded yet." />
                                         ) : (
@@ -525,6 +620,7 @@ function UserProfilePage() {
                                                         song.title ||
                                                         `Liked ${index + 1}`;
                                                     const image =
+                                                        song.image ||
                                                         track.album?.images?.[0]?.url ||
                                                         song.album?.images?.[0]?.url;
 
@@ -617,17 +713,19 @@ function RangeButtons({ selected, onSelect }) {
     );
 }
 
-function PreviewSection({ title, children }) {
+function PreviewSection({ title, viewAllPath, children }) {
     return (
         <section className="border-t border-gray-200 px-7 py-5">
             <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-bold">{title}</h3>
-                <button
-                    type="button"
-                    className="rounded-md bg-[#74ce97] px-3 py-1.5 text-xs font-semibold hover:bg-[#63c98b]"
-                >
-                    View All
-                </button>
+                {viewAllPath && (
+                    <Link
+                        to={viewAllPath}
+                        className="rounded-md bg-[#74ce97] px-3 py-1.5 text-xs font-semibold text-black hover:bg-[#63c98b]"
+                    >
+                        View All
+                    </Link>
+                )}
             </div>
 
             {children}
