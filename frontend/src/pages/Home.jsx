@@ -8,7 +8,8 @@ import SongRow from "../components/SongRow.jsx";
 export default function Home() {
     const { user, token } = useAuth();
 
-    const [songs, setSongs] = useState([]);
+    const [likedSongs, setLikedSongs] = useState([]);
+    const [topSongs, setTopSongs] = useState([]);
 
     useEffect(() => {
         if (!token) return;
@@ -26,21 +27,55 @@ export default function Home() {
                         },
                     },
                 );
-                setSongs(response.data.items);
+                setLikedSongs(response.data.items);
                 console.log(response.data.items);
             } catch (error) {
                 console.error("Failed to fetch liked songs", error);
             }
         };
 
+        async function loadTopSongs() {
+            try {
+                const response = await axios.get(
+                    "http://127.0.0.1:5000/topSongs",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
+                );
+
+                console.log("song: ", response.data.items[0]);
+
+                const processedSongs = response.data.items.map((item) => {
+                    return {
+                        track: {
+                            id: item.id,
+                            name: item.title,
+                            artists: [{ name: item.artist }],
+                            album: {
+                                name: item.album,
+                                images: [{ url: item.imageUrl }],
+                            },
+                        },
+                    };
+                });
+
+                setTopSongs(processedSongs);
+            } catch (error) {
+                console.error("Failed to fetch top songs: ", error);
+            }
+        }
+
         fetchLikedSongs();
+        loadTopSongs();
     }, [token]);
 
     return (
         <>
             <div className="flex w-full h-screen bg-slate-50 mb-8 overflow-hidden">
                 <Navbar />
-                <div className="ml-52 min-h-screen p-8">
+                <div className="flex-1 w-full h-full ml-52 p-8 overflow-y-auto">
                     <h1 className="text-3xl font-extrabold text-black tracking-tight">
                         Welcome back,{" "}
                         <span className="text-[#1F6F5F]">
@@ -70,7 +105,7 @@ export default function Home() {
                                         Your recently saved tracks
                                     </div>
                                     <div className="flex-1 w-full min-w-0">
-                                        {songs.length === 0 ? (
+                                        {likedSongs.length === 0 ? (
                                             <div className="h-full flex items-center justify-center border border-dashed border-white/20 rounded-xl p-4">
                                                 <span className="text-xs text-white/60">
                                                     No tracks loaded
@@ -78,21 +113,26 @@ export default function Home() {
                                             </div>
                                         ) : (
                                             <ul className="flex flex-col gap-2 w-full min-w-0">
-                                                {songs.map((song, index) => (
-                                                    <li
-                                                        key={
-                                                            song.track?.id ||
-                                                            index
-                                                        }
-                                                        className="list-none w-full min-w-0 text-slate-900"
-                                                    >
-                                                        <SongRow
-                                                            songData={song}
-                                                            index={index + 1}
-                                                            compact={true}
-                                                        />
-                                                    </li>
-                                                ))}
+                                                {likedSongs.map(
+                                                    (song, index) => (
+                                                        <li
+                                                            key={
+                                                                song.track
+                                                                    ?.id ||
+                                                                index
+                                                            }
+                                                            className="list-none w-full min-w-0 text-slate-900"
+                                                        >
+                                                            <SongRow
+                                                                songData={song}
+                                                                index={
+                                                                    index + 1
+                                                                }
+                                                                compact={true}
+                                                            />
+                                                        </li>
+                                                    ),
+                                                )}
                                             </ul>
                                         )}
                                     </div>
@@ -100,7 +140,7 @@ export default function Home() {
 
                                 <Link
                                     to="/topartists"
-                                    className="group flex flex-col min-h-[180px] bg-[#1F6F5F] border border-slate-800/60 rounded-2xl p-5 hover:bg-[#2FA084] hover:border-[#1F6F5F]/40 hover:shadow-xl transition-all duration-150 outline-none focus:ring-2 focus:ring-[#1F6F5F]"
+                                    className="group flex flex-col min-h-[260px] bg-[#1F6F5F] border border-slate-800/60 rounded-2xl p-5 hover:bg-[#2FA084] hover:border-[#1F6F5F]/40 hover:shadow-xl transition-all duration-150 outline-none focus:ring-2 focus:ring-[#1F6F5F]"
                                 >
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="font-bold text-base text-white">
@@ -122,7 +162,7 @@ export default function Home() {
 
                                 <Link
                                     to="/topsongs"
-                                    className="group flex flex-col min-h-[180px] bg-[#1F6F5F] border border-slate-800/60 rounded-2xl p-5 hover:bg-[#2FA084] hover:border-[#1F6F5F]/40 hover:shadow-xl transition-all duration-150 outline-none focus:ring-2 focus:ring-[#1F6F5F]"
+                                    className="group flex flex-col min-h-[260px] bg-[#1F6F5F] border border-slate-800/60 rounded-2xl p-5 hover:bg-[#2FA084] hover:border-[#1F6F5F]/40 hover:shadow-xl transition-all duration-150 outline-none focus:ring-2 focus:ring-[#1F6F5F]"
                                 >
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="font-bold text-base text-white">
@@ -133,12 +173,39 @@ export default function Home() {
                                         </span>
                                     </div>
                                     <div className="text-xs text-white/80 font-medium mb-3 shrink-0">
-                                        PLACEHOLDER
+                                        Your most played tracks
                                     </div>
-                                    <div className="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4">
-                                        <span className="text-xs text-slate-200">
-                                            No metrics loaded
-                                        </span>
+                                    <div className="flex-1 w-full min-w-0">
+                                        {topSongs.length === 0 ? (
+                                            <div className="h-full flex items-center justify-center border border-dashed border-white/20 rounded-xl p-4">
+                                                <span className="text-xs text-white/60">
+                                                    No tracks loaded
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <ul className="flex flex-col gap-2 w-full min-w-0">
+                                                {topSongs
+                                                    .slice(0, 3)
+                                                    .map((song, index) => (
+                                                        <li
+                                                            key={
+                                                                song.track
+                                                                    ?.id ||
+                                                                index
+                                                            }
+                                                            className="list-none w-full min-w-0 text-slate-900"
+                                                        >
+                                                            <SongRow
+                                                                songData={song}
+                                                                index={
+                                                                    index + 1
+                                                                }
+                                                                compact={true}
+                                                            />
+                                                        </li>
+                                                    ))}
+                                            </ul>
+                                        )}
                                     </div>
                                 </Link>
                             </div>
