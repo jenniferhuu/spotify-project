@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Navbar from '../components/Navbar.jsx'
+import { useAuth } from '../context/AuthProvider.jsx'
 
 const filters = [
 	{ id: 'allTime', label: 'All Time' },
@@ -13,18 +14,29 @@ export default function TopSongs() {
 	const [songs, setSongs] = useState([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState('')
+	const { token } = useAuth()     // Get the Spotify access token from context
 
     // Use a flag to prevent state updates on unmounted component
 	useEffect(() => {
 		let isMounted = true
 
 		async function loadTopSongs() {
+			if (!token) {
+				setSongs([])
+				setError('Please log in with Spotify to view your top songs.')
+				setIsLoading(false)
+				return
+			}
+
 			setIsLoading(true)
 			setError('')
 
             // Fetch top songs, return different error message if the request fails
 			try {
 				const response = await axios.get('http://127.0.0.1:5000/topSongs', {
+					headers: {
+						Authorization: `Bearer ${token}`,   // Send the access token in the header to backend
+					},
 					params: {
 						range: selectedFilter,
 					},
@@ -50,7 +62,7 @@ export default function TopSongs() {
 		return () => {
 			isMounted = false
 		}
-	}, [selectedFilter])
+	}, [selectedFilter, token])
 
 	const topThree = songs.slice(0, 3)
 	const remainingSongs = songs.slice(3)

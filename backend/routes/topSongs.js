@@ -1,205 +1,97 @@
 import express from "express";
 
 const router = express.Router();
+const spotifyApiUrl = "https://api.spotify.com/v1";
 
-const topSongsByRange = {
-	allTime: [
-		{
-			rank: 1,
-			title: "All Time Song 1",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 2,
-			title: "All Time Song 2",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 3,
-			title: "All Time Song 3",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 4,
-			title: "All Time Song 4",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 5,
-			title: "All Time Song 5",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 6,
-			title: "All Time Song 6",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 7,
-			title: "All Time Song 7",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 8,
-			title: "All Time Song 8",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 9,
-			title: "All Time Song 9",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 10,
-			title: "All Time Song 10",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-	],
-	lastYear: [
-		{
-			rank: 1,
-			title: "Last Year Song 1",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 2,
-			title: "Last Year Song 2",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 3,
-			title: "Last Year Song 3",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 4,
-			title: "Last Year Song 4",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 5,
-			title: "Last Year Song 5",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 6,
-			title: "Last Year Song 6",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 7,
-			title: "Last Year Song 7",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 8,
-			title: "Last Year Song 8",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 9,
-			title: "Last Year Song 9",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 10,
-			title: "Last Year Song 10",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-	],
-	lastMonth: [
-		{
-			rank: 1,
-			title: "Last Month Song 1",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 2,
-			title: "Last Month Song 2",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 3,
-			title: "Last Month Song 3",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 4,
-			title: "Last Month Song 4",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 5,
-			title: "Last Month Song 5",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 6,
-			title: "Last Month Song 6",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 7,
-			title: "Last Month Song 7",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 8,
-			title: "Last Month Song 8",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 9,
-			title: "Last Month Song 9",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 10,
-			title: "Last Month Song 10",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-	],
+const spotifyTimeRanges = {
+	allTime: "long_term",
+	lastYear: "medium_term",
+	lastMonth: "short_term",
 };
 
-// Get top songs based on the time range, returns a JSON response with the requested songs
+// Helper function to extract the Bearer token from the Authorization header from frontend request
+function getBearerToken(req) {
+	const authorizationHeader = req.headers.authorization || "";
+	if (!authorizationHeader.startsWith("Bearer ")) {
+		return "";
+	}
+
+	return authorizationHeader.slice(7).trim();
+}
+
+async function getSpotifyErrorMessage(response, fallbackMessage) {
+	const responseText = await response.text();
+
+	if (!responseText) {
+		return fallbackMessage;
+	}
+
+	try {
+		const responseBody = JSON.parse(responseText);
+		return (
+			responseBody.error_description ||
+			responseBody.error?.message ||
+			responseBody.error ||
+			fallbackMessage
+		);
+	} catch {
+		return responseText;
+	}
+}
+
+// Helper function to format Spotify track data into a consistent structure for frontend
+function formatTopTrack(track, index) {
+	return {
+		rank: index + 1,
+		id: track.id,
+		title: track.name,
+		artist: track.artists?.map((artist) => artist.name).join(", ") || "",
+		album: track.album?.name || "",
+		imageUrl: track.album?.images?.[0]?.url || "",
+		spotifyUrl: track.external_urls?.spotify || "",
+	};
+}
+
+// The actual request to Spotify API
 router.get("/", async (req, res) => {
 	try {
+		const accessToken = getBearerToken(req);
+		if (!accessToken) {
+			return res.status(401).json({
+				message: "Missing Spotify access token",
+			});
+		}
+
 		const requestedRange = req.query.range || "allTime";
-		const songs = topSongsByRange[requestedRange] || topSongsByRange.allTime;
+		const timeRange = spotifyTimeRanges[requestedRange] || "long_term";
+		const response = await fetch(
+			`${spotifyApiUrl}/me/top/tracks?time_range=${timeRange}&limit=10`,
+			{
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+			},
+		);
+
+        // If Spotify API returns an error, extract the error message and send it back to frontend
+		if (!response.ok) {
+			const errorMessage = await getSpotifyErrorMessage(
+				response,
+				"Failed to fetch top songs",
+			);
+
+			return res.status(response.status).json({
+				message: "Spotify API error",
+				details: errorMessage,
+			});
+		}
+
+		const data = await response.json();
+		const songs = (data.items || []).map(formatTopTrack);
 
 		res.status(200).json({
 			timeRange: requestedRange,
-			total: songs.length,
+			total: data.total ?? songs.length,
 			items: songs,
 		});
 	} catch (error) {
