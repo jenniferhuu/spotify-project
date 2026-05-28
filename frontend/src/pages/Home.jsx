@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthProvider.jsx";
+import { useAuth } from "../context/useAuth.js";
 import Navbar from "../components/Navbar";
 import SongRow from "../components/SongRow.jsx";
 
@@ -40,7 +40,7 @@ export default function Home() {
         <>
             <div className="flex w-full h-screen bg-slate-50 mb-8 overflow-hidden">
                 <Navbar />
-                <div className="flex-1 h-full p-8 overflow-y-auto">
+                <div className="ml-52 min-h-screen p-8">
                     <h1 className="text-3xl font-extrabold text-black tracking-tight">
                         Welcome back,{" "}
                         <span className="text-[#1F6F5F]">

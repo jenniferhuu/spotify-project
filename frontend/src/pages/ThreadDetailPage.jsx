@@ -5,7 +5,7 @@ import ReplyCard from '../components/forums/ReplyCard';
 import CreateReplyForm from '../components/forums/CreateReplyForm';
 import { ArrowLeftIcon, UserIcon } from '../components/forums/ForumIcons';
 import { fetchThreadDetail, deleteThread, deleteReply } from '../api/forums';
-import { useAuth } from '../context/AuthProvider';
+import { useAuth } from '../context/useAuth.js';
 
 export default function ThreadDetailPage() {
     const { user } = useAuth();
@@ -16,24 +16,41 @@ export default function ThreadDetailPage() {
 
     const [thread, setThread] = useState(null);
     const [replies, setReplies] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loadedKey, setLoadedKey] = useState(null);
+    const [refreshToken, setRefreshToken] = useState(0);
+
+    const requestKey = `${forumId}:${threadId}:${refreshToken}`;
+    const loading = loadedKey !== requestKey;
 
     useEffect(() => {
-        loadThread();
-    }, [threadId]);
+        let cancelled = false;
 
-    async function loadThread() {
-        try {
-            setLoading(true);
-            const data = await fetchThreadDetail(forumId, threadId);
-            const { repliesList, ...threadData } = data;
-            setThread(threadData);
-            setReplies(repliesList || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
+        (async () => {
+            try {
+                const data = await fetchThreadDetail(forumId, threadId);
+                if (cancelled) {
+                    return;
+                }
+
+                const { repliesList, ...threadData } = data;
+                setThread(threadData);
+                setReplies(repliesList || []);
+                setLoadedKey(requestKey);
+            } catch (err) {
+                if (!cancelled) {
+                    console.error(err);
+                    setLoadedKey(requestKey);
+                }
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [forumId, requestKey, threadId]);
+
+    function refreshThread() {
+        setRefreshToken((current) => current + 1);
     }
 
     async function handleDeleteThread() {
@@ -50,7 +67,7 @@ export default function ThreadDetailPage() {
         if (!user) return;
         try {
             await deleteReply(forumId, threadId, replyId, user.spotifyId);
-            loadThread();
+            refreshThread();
         } catch (err) {
             console.error(err);
         }
@@ -147,7 +164,7 @@ export default function ThreadDetailPage() {
                                 <CreateReplyForm
                                     forumId={forumId}
                                     threadId={threadId}
-                                    onReplyPosted={loadThread}
+                                    onReplyPosted={refreshThread}
                                 />
                             </div>
                         </>

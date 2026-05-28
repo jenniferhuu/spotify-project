@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthProvider";
+import { useAuth } from "../context/useAuth.js";
 import Navbar from "../components/Navbar";
 import SongRow from "../components/SongRow";
 
@@ -73,9 +73,9 @@ export default function LikedSongs() {
 
     return (
         <>
-            <div className="flex w-full h-screen bg-slate-50 overflow-hidden">
+            <div className="min-h-screen bg-slate-50 overflow-x-hidden">
                 <Navbar />
-                <div className="flex-1 h-full p-8 overflow-y-auto">
+                <div className="ml-52 min-h-screen p-8">
                     <div className="mx-auto flex flex-col gap-2">
                         <h2 className="text-3xl font-bold mb-6 tracking-tight text-slate-900">
                             Your Liked Songs

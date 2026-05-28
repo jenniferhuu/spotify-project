@@ -11,7 +11,7 @@ import {
 const router = express.Router();
 const spotifyAccountsUrl = "https://accounts.spotify.com";
 const spotifyApiUrl = "https://api.spotify.com/v1";
-const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+const frontendUrl = process.env.FRONTEND_URL || "http://127.0.0.1:5173";
 const spotifyScopes = [
     "user-read-email",
     "user-read-private",
@@ -19,8 +19,28 @@ const spotifyScopes = [
     "user-top-read",
 ];
 
-const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } =
-    process.env;
+const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
+
+// Switch localhost URLs to 127.0.0.1 because Spotify does not accept
+// localhost as a valid redirect URI hostname
+function normalizeLoopbackUrl(value, fallback) {
+    const nextValue = value || fallback;
+
+    try {
+        const url = new URL(nextValue);
+        if (url.hostname === "localhost") {
+            url.hostname = "127.0.0.1";
+        }
+        return url.toString();
+    } catch {
+        return fallback;
+    }
+}
+
+const SPOTIFY_REDIRECT_URI = normalizeLoopbackUrl(
+    process.env.SPOTIFY_REDIRECT_URI,
+    "http://127.0.0.1:5000/auth/spotify/callback",
+);
 
 function getCookie(req, name) {
     const header = req.headers.cookie;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Navbar from '../components/Navbar.jsx'
+import { useAuth } from '../context/useAuth.js'
 
 const filters = [
 	{ id: 'allTime', label: 'All Time' },
@@ -13,18 +14,32 @@ export default function TopSongs() {
 	const [songs, setSongs] = useState([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState('')
+	const [visibleSongCount, setVisibleSongCount] = useState(10)
+	const { token } = useAuth()     // Get the Spotify access token from context
 
     // Use a flag to prevent state updates on unmounted component
 	useEffect(() => {
 		let isMounted = true
 
 		async function loadTopSongs() {
+			if (!token) {
+				setSongs([])
+				setError('Please log in with Spotify to view your top songs.')
+				setVisibleSongCount(10)
+				setIsLoading(false)
+				return
+			}
+
 			setIsLoading(true)
 			setError('')
+			setVisibleSongCount(10)
 
             // Fetch top songs, return different error message if the request fails
 			try {
 				const response = await axios.get('http://127.0.0.1:5000/topSongs', {
+					headers: {
+						Authorization: `Bearer ${token}`,   // Send the access token in the header to backend
+					},
 					params: {
 						range: selectedFilter,
 					},
@@ -33,7 +48,7 @@ export default function TopSongs() {
 				if (isMounted) {
 					setSongs(response.data.items ?? [])
 				}
-			} catch (fetchError) {
+			} catch {
 				if (isMounted) {
 					setError('Unable to load top songs right now.')
 					setSongs([])
@@ -50,15 +65,17 @@ export default function TopSongs() {
 		return () => {
 			isMounted = false
 		}
-	}, [selectedFilter])
+	}, [selectedFilter, token])
 
 	const topThree = songs.slice(0, 3)
 	const remainingSongs = songs.slice(3)
+	const visibleRemainingSongs = remainingSongs.slice(0, visibleSongCount)
+	const canShowMoreSongs = visibleSongCount < remainingSongs.length
 
 	return (
-		<div className="flex w-full h-screen bg-slate-50 overflow-hidden">
+		<div className="min-h-screen bg-slate-50 overflow-x-hidden">
 			<Navbar />
-			<main className="flex-1 px-6 py-10 text-left sm:px-8 lg:px-12">
+			<main className="ml-52 min-h-screen min-w-0 px-6 py-10 text-left sm:px-8 lg:px-12">
 				<section className="space-y-3">
 					<h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
 						Your Top Songs
@@ -103,11 +120,20 @@ export default function TopSongs() {
 						topThree.map((song) => (
 							<article
 								key={song.rank}
-								className="flex min-h-44 flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+								className="flex min-h-44 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
 							>
+								{song.imageUrl ? (
+									<img
+										src={song.imageUrl}
+										alt={`${song.album || song.title} cover`}
+										className="aspect-square w-full rounded-xl object-cover shadow-sm"
+									/>
+								) : (
+									<div className="aspect-square w-full rounded-xl bg-gradient-to-br from-slate-200 to-slate-100" />
+								)}
 								<div className="space-y-2">
 									<p className="text-sm font-medium uppercase tracking-[0.22em] text-slate-500">
-										Rank {song.rank}
+										# {song.rank}
 									</p>
 									<h2 className="text-xl font-semibold text-slate-950">
 										{song.title}
@@ -128,21 +154,48 @@ export default function TopSongs() {
 						<table className="w-full border-collapse text-left">
 							<thead className="bg-slate-50">
 								<tr className="text-sm font-medium text-slate-600">
-									<th className="px-5 py-4">Rank</th>
+									<th className="px-5 py-4">#</th>
+									<th className="px-5 py-4">Cover</th>
 									<th className="px-5 py-4">Song</th>
 									<th className="px-5 py-4">Artist</th>
 								</tr>
 							</thead>
 							<tbody>
-								{remainingSongs.map((song) => (
+								{visibleRemainingSongs.map((song) => (
 									<tr key={song.rank} className="border-t border-slate-200 text-slate-700">
 										<td className="px-5 py-4 font-medium text-slate-500">{song.rank}</td>
+										<td className="px-5 py-4">
+											{song.imageUrl ? (
+												<img
+													src={song.imageUrl}
+													alt={`${song.album || song.title} cover`}
+													className="h-8 w-8 rounded-lg object-cover shadow-sm"
+												/>
+											) : (
+												<div className="h-8 w-8 rounded-lg bg-slate-100" />
+											)}
+										</td>
 										<td className="px-5 py-4 font-medium text-slate-900">{song.title}</td>
 										<td className="px-5 py-4 text-slate-600">{song.artist}</td>
 									</tr>
 								))}
 							</tbody>
 						</table>
+						{canShowMoreSongs ? (
+							<div className="border-t border-slate-200 bg-slate-50 px-5 py-4">
+								<button
+									type="button"
+									onClick={() =>
+										setVisibleSongCount((currentCount) =>
+											Math.min(currentCount + 10, remainingSongs.length),
+										)
+									}
+									className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400"
+								>
+									See more songs
+								</button>
+							</div>
+						) : null}
 					</div>
 				</section>
 			</main>
