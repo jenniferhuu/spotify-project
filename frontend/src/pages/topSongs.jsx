@@ -68,9 +68,9 @@ export default function TopSongs() {
 	const remainingSongs = songs.slice(3)
 
 	return (
-		<div className="flex w-full h-screen bg-slate-50 overflow-hidden">
+		<div className="min-h-screen bg-slate-50 overflow-x-hidden">
 			<Navbar />
-			<main className="flex-1 px-6 py-10 text-left sm:px-8 lg:px-12">
+			<main className="ml-52 min-h-screen min-w-0 px-6 py-10 text-left sm:px-8 lg:px-12">
 				<section className="space-y-3">
 					<h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
 						Your Top Songs

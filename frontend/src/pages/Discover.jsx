@@ -20,9 +20,9 @@ export default function Discover() {
     );
 
     return (
-        <div className="flex w-full h-screen bg-slate-50 overflow-hidden">
+        <div className="min-h-screen bg-slate-50 overflow-x-hidden">
             <Navbar />
-            <div className="flex-1 h-full p-8 overflow-y-auto">
+            <div className="ml-52 min-h-screen p-8">
                 <h1 className="text-2xl font-bold text-slate-900 mb-1">
                     Discover People
                 </h1>
