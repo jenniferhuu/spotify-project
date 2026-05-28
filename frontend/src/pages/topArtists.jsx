@@ -34,11 +34,10 @@ export default function TopArtists() {
             setError('')
             setVisibleArtistCount(10)
 
-            // Fetch top artists, return different error message if the request fails
             try {
-                const response = await axios.get('http://127.0.0.1:5000/topArtists', {
+                const response = await axios.get('/topArtists', {
                     headers: {
-                        Authorization: `Bearer ${token}`,   // Send the access token in the header to backend
+                        Authorization: `Bearer ${token}`,
                     },
                     params: {
                         range: selectedFilter,
@@ -48,9 +47,9 @@ export default function TopArtists() {
                 if (isMounted) {
                     setArtists(response.data.items ?? [])
                 }
-            } catch {
+            } catch (fetchError) {
                 if (isMounted) {
-                    setError('Unable to load top artists right now.')
+                    setError(fetchError instanceof Error ? fetchError.message : 'Unable to load top artists right now.')
                     setArtists([])
                 }
             } finally {
@@ -138,7 +137,6 @@ export default function TopArtists() {
                                     <h2 className="text-xl font-semibold text-slate-950">
                                         {artist.name}
                                     </h2>
-                                    <p className="text-sm text-slate-600">{artist.genres?.join(', ') || 'Unknown genres'}</p>
                                 </div>
                             </article>
                         ))
@@ -175,7 +173,6 @@ export default function TopArtists() {
                                             )}
                                         </td>
                                         <td className="px-5 py-4 font-medium text-slate-900">{artist.name}</td>
-                                        <td className="px-5 py-4 text-slate-600">{artist.genres?.join(', ') || 'Unknown genres'}</td>
                                     </tr>
                                 ))}
                             </tbody>

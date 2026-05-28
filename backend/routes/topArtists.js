@@ -45,9 +45,7 @@ function formatTopArtist(artist, index) {
         rank: index + 1,
         id: artist.id,
         name: artist.name,
-        genres: artist.genres || [],
         imageUrl: artist.images?.[0]?.url || "",
-        spotifyUrl: artist.external_urls?.spotify || "",
     };
 }
 
