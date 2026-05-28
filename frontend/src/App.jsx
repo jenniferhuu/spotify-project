@@ -1,7 +1,14 @@
-import UserProfilePage from "./pages/UserProfilePage";
+import { Outlet } from "react-router-dom";
+import "./App.css";
 
 function App() {
-  return <UserProfilePage />;
+    return (
+        <>
+            <main>
+                <Outlet />
+            </main>
+        </>
+    );
 }
 
 export default App;
