@@ -2,13 +2,26 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import App from "./App.jsx";
 import "./index.css";
+import App from "./App.jsx";
 import Home from "./pages/Home.jsx";
 import LikedSongs from "./pages/LikedSongs.jsx";
 import TopSongs from "./pages/topSongs.jsx";
+import Discover from "./pages/Discover.jsx";
+import Login from "./pages/Login.jsx";
+import Callback from "./pages/Callback.jsx";
+
+import { AuthProvider } from "./context/AuthProvider.jsx";
 
 const router = createBrowserRouter([
+    {
+        path: "/spotify/callback",
+        element: <Callback />,
+    },
+    {
+        path: "/login",
+        element: <Login />,
+    },
     {
         path: "/",
         element: <App />,
@@ -25,12 +38,17 @@ const router = createBrowserRouter([
                 path: "/topSongs",
                 element: <TopSongs />,
             },
+                path: "/discover",
+                element: <Discover />,
+            },
         ],
     },
 ]);
 
 createRoot(document.getElementById("root")).render(
     <StrictMode>
-        <RouterProvider router={router} />
+        <AuthProvider>
+            <RouterProvider router={router} />
+        </AuthProvider>
     </StrictMode>,
 );
