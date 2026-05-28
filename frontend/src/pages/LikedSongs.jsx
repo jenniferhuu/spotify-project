@@ -23,6 +23,9 @@ export default function LikedSongs() {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
+                        params: {
+                            limit: 50,
+                        },
                     },
                 );
                 setSongs(response.data.items);

@@ -1,9 +1,40 @@
+import axios from "axios";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider.jsx";
 import Navbar from "../components/Navbar";
+import SongRow from "../components/SongRow.jsx";
 
 export default function Home() {
-    const { user } = useAuth();
+    const { user, token } = useAuth();
+
+    const [songs, setSongs] = useState([]);
+
+    useEffect(() => {
+        if (!token) return;
+
+        const fetchLikedSongs = async () => {
+            try {
+                const response = await axios.get(
+                    "http://localhost:5000/songs/likedsongs",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                        params: {
+                            limit: 3,
+                        },
+                    },
+                );
+                setSongs(response.data.items);
+                console.log(response.data.items);
+            } catch (error) {
+                console.error("Failed to fetch liked songs", error);
+            }
+        };
+
+        fetchLikedSongs();
+    }, [token]);
 
     return (
         <>
@@ -35,10 +66,35 @@ export default function Home() {
                                             View All →
                                         </span>
                                     </div>
-                                    <div className="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4">
-                                        <span className="text-xs text-slate-200">
-                                            No tracks loaded
-                                        </span>
+                                    <div className="text-xs text-white/80 font-medium mb-3 shrink-0">
+                                        Your recently saved tracks
+                                    </div>
+                                    <div className="flex-1 w-full min-w-0">
+                                        {songs.length === 0 ? (
+                                            <div className="h-full flex items-center justify-center border border-dashed border-white/20 rounded-xl p-4">
+                                                <span className="text-xs text-white/60">
+                                                    No tracks loaded
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <ul className="flex flex-col gap-2 w-full min-w-0">
+                                                {songs.map((song, index) => (
+                                                    <li
+                                                        key={
+                                                            song.track?.id ||
+                                                            index
+                                                        }
+                                                        className="list-none w-full min-w-0 text-slate-900"
+                                                    >
+                                                        <SongRow
+                                                            songData={song}
+                                                            index={index + 1}
+                                                            compact={true}
+                                                        />
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
                                     </div>
                                 </Link>
 
@@ -53,6 +109,9 @@ export default function Home() {
                                         <span className="text-xs text-white font-semibold group-hover:translate-x-1 transition-transform inline-block">
                                             View All →
                                         </span>
+                                    </div>
+                                    <div className="text-xs text-white/80 font-medium mb-3 shrink-0">
+                                        PLACEHOLDER
                                     </div>
                                     <div className="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4">
                                         <span className="text-xs text-slate-200">
@@ -72,6 +131,9 @@ export default function Home() {
                                         <span className="text-xs text-white font-semibold group-hover:translate-x-1 transition-transform inline-block">
                                             View All →
                                         </span>
+                                    </div>
+                                    <div className="text-xs text-white/80 font-medium mb-3 shrink-0">
+                                        PLACEHOLDER
                                     </div>
                                     <div className="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4">
                                         <span className="text-xs text-slate-200">
@@ -96,6 +158,9 @@ export default function Home() {
                                             Explore →
                                         </span>
                                     </div>
+                                    <div className="text-xs text-white/80 font-medium mb-3 shrink-0">
+                                        PLACEHOLDER
+                                    </div>
                                     <div className="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4">
                                         <span className="text-xs text-slate-200">
                                             No profile nodes available
@@ -115,6 +180,9 @@ export default function Home() {
                                             Enter →
                                         </span>
                                     </div>
+                                    <div className="text-xs text-white/80 font-medium mb-3 shrink-0">
+                                        PLACEHOLDER
+                                    </div>
                                     <div className="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4">
                                         <span className="text-xs text-slate-200">
                                             No active threads loaded
@@ -133,6 +201,9 @@ export default function Home() {
                                         <span className="text-xs text-white font-semibold group-hover:translate-x-1 transition-transform inline-block">
                                             Open →
                                         </span>
+                                    </div>
+                                    <div className="text-xs text-white/80 font-medium mb-3 shrink-0">
+                                        PLACEHOLDER
                                     </div>
                                     <div className="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4">
                                         <span className="text-xs text-slate-200">
