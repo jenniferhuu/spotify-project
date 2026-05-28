@@ -4,4 +4,9 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
     plugins: [react(), tailwindcss()],
+    server: {
+        proxy: {
+            '/topSongs': 'http://127.0.0.1:5000',
+        },
+    },
 });
