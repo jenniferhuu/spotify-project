@@ -63,7 +63,8 @@ export default function Discover() {
                     {filtered.map((user) => (
                         <div
                             key={user.id}
-                            className="bg-white rounded-xl shadow-sm border border-[#1F6F5F]/30 px-4 py-6 flex flex-col items-center"
+                            onClick={() => navigate(`/user/${user.spotifyId}`)}
+                            className="bg-white rounded-xl shadow-sm border border-[#1F6F5F]/30 px-4 py-6 flex flex-col items-center cursor-pointer hover:shadow-md transition-shadow"
                         >
                             {user.profilePic ? (
                                 <img
@@ -84,16 +85,17 @@ export default function Discover() {
                             )}
 
                             <p className="font-bold text-slate-900 text-sm">
-                                {user.username}
+                                @{user.handle || user.username}
                             </p>
                             <p className="text-slate-500 text-xs mb-3">
                                 {user.topGenre || "Music lover"}
                             </p>
 
                             <button
-                                onClick={() =>
-                                    navigate(`/inbox?startChat=${user.id}`)
-                                }
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/inbox?startChat=${user.id}`);
+                                }}
                                 className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#1F6F5F] text-[#1F6F5F] text-xs font-medium hover:bg-[#1F6F5F] hover:text-white transition-colors duration-150 cursor-pointer"
                             >
                                 <svg

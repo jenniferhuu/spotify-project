@@ -16,6 +16,7 @@ import TopArtistsPage from "./pages/TopArtistsPage.jsx";
 import ForumsPage from "./pages/ForumsPage.jsx";
 import ThreadsPage from "./pages/ThreadsPage.jsx";
 import ThreadDetailPage from "./pages/ThreadDetailPage.jsx";
+import PublicProfilePage from "./pages/PublicProfilePage.jsx";
 
 import { AuthProvider } from "./context/AuthProvider.jsx";
 
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
             {
                 path: "/discover",
                 element: <Discover />,
+            },
+            {
+                path: "/user/:spotifyId",
+                element: <PublicProfilePage />,
             },
             {
                 path: "/topartists",
