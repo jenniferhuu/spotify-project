@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthProvider.jsx";
+import { useAuth } from "../context/useAuth.js";
 
 import homeIcon from "../assets/home.png";
 import profileIcon from "../assets/profile.png";

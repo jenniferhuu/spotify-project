@@ -5,7 +5,7 @@ import ForumCard from '../components/forums/ForumCard';
 import CreateForumModal from '../components/forums/CreateForumModal';
 import { SearchIcon, PlusIcon } from '../components/forums/ForumIcons';
 import { fetchForums, searchForums, deleteForum } from '../api/forums';
-import { useAuth } from '../context/AuthProvider';
+import { useAuth } from '../context/useAuth.js';
 
 export default function ForumsPage() {
     const { user, isAuthenticated } = useAuth();

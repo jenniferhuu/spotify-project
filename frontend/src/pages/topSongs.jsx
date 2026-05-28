@@ -48,7 +48,7 @@ export default function TopSongs() {
 				if (isMounted) {
 					setSongs(response.data.items ?? [])
 				}
-			} catch (fetchError) {
+			} catch {
 				if (isMounted) {
 					setError('Unable to load top songs right now.')
 					setSongs([])

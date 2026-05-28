@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthProvider";
+import { useAuth } from "../context/useAuth.js";
 import Navbar from "../components/Navbar";
 import SongRow from "../components/SongRow";
 
