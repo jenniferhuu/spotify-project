@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
     }, []);
 
     const loginWithSpotify = () => {
-        window.location.href = "http://127.0.0.1:5001/auth/spotify";
+        window.location.href = "http://127.0.0.1:5000/auth/spotify";
     };
 
     const logout = () => {
