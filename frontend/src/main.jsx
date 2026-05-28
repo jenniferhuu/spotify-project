@@ -11,6 +11,7 @@ import TopSongs from "./pages/topSongs.jsx";
 import Discover from "./pages/Discover.jsx";
 import Login from "./pages/Login.jsx";
 import Callback from "./pages/Callback.jsx";
+import TopArtistsPage from "./pages/TopArtistsPage.jsx";
 
 import { AuthProvider } from "./context/AuthProvider.jsx";
 
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
                 path: "/discover",
                 element: <Discover />,
             },
+            {
+                path: "topartists",
+                element: <TopArtistsPage />,
+            }
         ],
     },
 ]);

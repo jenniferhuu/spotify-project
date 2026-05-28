@@ -8,44 +8,35 @@ const filters = [
     { id: "lastMonth", label: "Last Month" },
 ];
 
-export default function TopSongs() {
+export default function TopArtistsPage() {
     const [selectedFilter, setSelectedFilter] = useState("allTime");
-    const [songs, setSongs] = useState([]);
+    const [artists, setArtists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
         let isMounted = true;
 
-        async function loadTopSongs() {
+        async function loadTopArtists() {
             setIsLoading(true);
             setError("");
 
             try {
-                const token = localStorage.getItem("spotifyToken");
-
-                if (!token) {
-                    throw new Error("Missing Spotify token");
-                }
-
-                const response = await axios.get("http://127.0.0.1:5001/topSongs", {
+                const response = await axios.get("http://127.0.0.1:5001/topArtists", {
                     params: {
                         range: selectedFilter,
-                    },
-                    headers: {
-                        Authorization: `Bearer ${token}`,
                     },
                 });
 
                 if (isMounted) {
-                    setSongs(response.data.items ?? []);
+                    setArtists(response.data.items ?? []);
                 }
             } catch (fetchError) {
-                console.error("Failed to fetch top songs:", fetchError);
+                console.error("Failed to fetch top artists:", fetchError);
 
                 if (isMounted) {
-                    setError("Unable to load top songs right now.");
-                    setSongs([]);
+                    setError("Unable to load top artists right now.");
+                    setArtists([]);
                 }
             } finally {
                 if (isMounted) {
@@ -54,15 +45,15 @@ export default function TopSongs() {
             }
         }
 
-        loadTopSongs();
+        loadTopArtists();
 
         return () => {
             isMounted = false;
         };
     }, [selectedFilter]);
 
-    const topThree = songs.slice(0, 3);
-    const remainingSongs = songs.slice(3);
+    const topThree = artists.slice(0, 3);
+    const remainingArtists = artists.slice(3);
 
     return (
         <div className="flex w-full h-screen bg-slate-50 overflow-hidden">
@@ -71,10 +62,10 @@ export default function TopSongs() {
             <main className="flex-1 px-6 py-10 text-left sm:px-8 lg:px-12 overflow-y-auto">
                 <section className="space-y-3">
                     <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-                        Your Top Songs
+                        Your Top Artists
                     </h1>
                     <p className="text-base text-slate-600 sm:text-lg">
-                        Songs you&apos;ve listened to the most.
+                        Artists you&apos;ve listened to the most.
                     </p>
                 </section>
 
@@ -103,7 +94,7 @@ export default function TopSongs() {
                 <section className="mt-8 grid gap-5 md:grid-cols-3">
                     {isLoading ? (
                         <div className="md:col-span-3 rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-slate-500">
-                            Loading top songs...
+                            Loading top artists...
                         </div>
                     ) : error ? (
                         <div className="md:col-span-3 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-10 text-center text-rose-700">
@@ -111,33 +102,37 @@ export default function TopSongs() {
                         </div>
                     ) : topThree.length === 0 ? (
                         <div className="md:col-span-3 rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-slate-500">
-                            No top songs found.
+                            No top artists found.
                         </div>
                     ) : (
-                        topThree.map((song) => (
+                        topThree.map((artist) => (
                             <article
-                                key={song.id || song.rank}
+                                key={artist.id || artist.rank}
                                 className="flex min-h-44 flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
                             >
                                 <div className="space-y-3">
-                                    {song.image && (
+                                    {artist.image ? (
                                         <img
-                                            src={song.image}
-                                            alt={`${song.title} album cover`}
-                                            className="h-24 w-24 rounded-xl object-cover shadow-sm"
+                                            src={artist.image}
+                                            alt={`${artist.name} profile`}
+                                            className="h-24 w-24 rounded-full object-cover shadow-sm"
                                         />
+                                    ) : (
+                                        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-emerald-50 text-3xl">
+                                            🎤
+                                        </div>
                                     )}
 
                                     <p className="text-sm font-medium uppercase tracking-[0.22em] text-slate-500">
-                                        Rank {song.rank}
+                                        Rank {artist.rank}
                                     </p>
 
                                     <h2 className="text-xl font-semibold text-slate-950">
-                                        {song.title}
+                                        {artist.name}
                                     </h2>
 
                                     <p className="text-sm text-slate-600">
-                                        {song.artist}
+                                        {artist.genre}
                                     </p>
                                 </div>
                             </article>
@@ -147,7 +142,7 @@ export default function TopSongs() {
 
                 <section className="mt-10 space-y-4">
                     <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-                        More Songs
+                        More Artists
                     </h2>
 
                     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -155,44 +150,43 @@ export default function TopSongs() {
                             <thead className="bg-slate-50">
                                 <tr className="text-sm font-medium text-slate-600">
                                     <th className="px-5 py-4">Rank</th>
-                                    <th className="px-5 py-4">Song</th>
                                     <th className="px-5 py-4">Artist</th>
-                                    <th className="px-5 py-4">Album</th>
+                                    <th className="px-5 py-4">Genre</th>
                                 </tr>
                             </thead>
 
                             <tbody>
-                                {remainingSongs.map((song) => (
+                                {remainingArtists.map((artist) => (
                                     <tr
-                                        key={song.id || song.rank}
+                                        key={artist.id || artist.rank}
                                         className="border-t border-slate-200 text-slate-700"
                                     >
                                         <td className="px-5 py-4 font-medium text-slate-500">
-                                            {song.rank}
+                                            {artist.rank}
                                         </td>
 
                                         <td className="px-5 py-4">
                                             <div className="flex items-center gap-3">
-                                                {song.image && (
+                                                {artist.image ? (
                                                     <img
-                                                        src={song.image}
-                                                        alt={`${song.title} album cover`}
-                                                        className="h-10 w-10 rounded-lg object-cover"
+                                                        src={artist.image}
+                                                        alt={`${artist.name} profile`}
+                                                        className="h-10 w-10 rounded-full object-cover"
                                                     />
+                                                ) : (
+                                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-lg">
+                                                        🎤
+                                                    </div>
                                                 )}
 
                                                 <span className="font-medium text-slate-900">
-                                                    {song.title}
+                                                    {artist.name}
                                                 </span>
                                             </div>
                                         </td>
 
                                         <td className="px-5 py-4 text-slate-600">
-                                            {song.artist}
-                                        </td>
-
-                                        <td className="px-5 py-4 text-slate-500">
-                                            {song.album}
+                                            {artist.genre}
                                         </td>
                                     </tr>
                                 ))}

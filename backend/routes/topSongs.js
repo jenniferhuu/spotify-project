@@ -2,210 +2,61 @@ import express from "express";
 
 const router = express.Router();
 
-const topSongsByRange = {
-	allTime: [
-		{
-			rank: 1,
-			title: "All Time Song 1",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 2,
-			title: "All Time Song 2",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 3,
-			title: "All Time Song 3",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 4,
-			title: "All Time Song 4",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 5,
-			title: "All Time Song 5",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 6,
-			title: "All Time Song 6",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 7,
-			title: "All Time Song 7",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 8,
-			title: "All Time Song 8",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 9,
-			title: "All Time Song 9",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 10,
-			title: "All Time Song 10",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-	],
-	lastYear: [
-		{
-			rank: 1,
-			title: "Last Year Song 1",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 2,
-			title: "Last Year Song 2",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 3,
-			title: "Last Year Song 3",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 4,
-			title: "Last Year Song 4",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 5,
-			title: "Last Year Song 5",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 6,
-			title: "Last Year Song 6",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 7,
-			title: "Last Year Song 7",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 8,
-			title: "Last Year Song 8",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 9,
-			title: "Last Year Song 9",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 10,
-			title: "Last Year Song 10",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-	],
-	lastMonth: [
-		{
-			rank: 1,
-			title: "Last Month Song 1",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 2,
-			title: "Last Month Song 2",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 3,
-			title: "Last Month Song 3",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 4,
-			title: "Last Month Song 4",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 5,
-			title: "Last Month Song 5",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 6,
-			title: "Last Month Song 6",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 7,
-			title: "Last Month Song 7",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 8,
-			title: "Last Month Song 8",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 9,
-			title: "Last Month Song 9",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-		{
-			rank: 10,
-			title: "Last Month Song 10",
-			artist: "Artist Name",
-			album: "Album Name",
-		},
-	],
+const spotifyRangeMap = {
+    allTime: "long_term",
+    lastYear: "medium_term",
+    lastMonth: "short_term",
 };
 
-// Get top songs based on the time range, returns a JSON response with the requested songs
 router.get("/", async (req, res) => {
-	try {
-		const requestedRange = req.query.range || "allTime";
-		const songs = topSongsByRange[requestedRange] || topSongsByRange.allTime;
+    try {
+        const requestedRange = req.query.range || "allTime";
+        const spotifyRange = spotifyRangeMap[requestedRange] || "long_term";
 
-		res.status(200).json({
-			timeRange: requestedRange,
-			total: songs.length,
-			items: songs,
-		});
-	} catch (error) {
-		console.error("Failed to fetch top songs", error);
-		res.status(500).json({ message: "Failed to fetch top songs" });
-	}
+        const token = req.headers.authorization?.replace("Bearer ", "");
+
+        if (!token) {
+            return res.status(401).json({ message: "Missing Spotify token" });
+        }
+
+        const response = await fetch(
+            `https://api.spotify.com/v1/me/top/tracks?limit=20&time_range=${spotifyRange}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Spotify top songs error:", errorText);
+            return res.status(response.status).json({
+                message: "Failed to fetch top songs from Spotify",
+            });
+        }
+
+        const data = await response.json();
+
+        const songs = data.items.map((track, index) => ({
+            id: track.id,
+            rank: index + 1,
+            title: track.name,
+            artist: track.artists.map((artist) => artist.name).join(", "),
+            album: track.album?.name || "",
+            image: track.album?.images?.[0]?.url || "",
+            spotifyUrl: track.external_urls?.spotify || "",
+        }));
+
+        res.status(200).json({
+            timeRange: requestedRange,
+            total: songs.length,
+            items: songs,
+        });
+    } catch (error) {
+        console.error("Failed to fetch top songs", error);
+        res.status(500).json({ message: "Failed to fetch top songs" });
+    }
 });
 
 export default router;
