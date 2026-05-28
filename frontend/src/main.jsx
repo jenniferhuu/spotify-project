@@ -6,6 +6,7 @@ import "./index.css";
 import App from "./App.jsx";
 import Home from "./pages/Home.jsx";
 import LikedSongs from "./pages/LikedSongs.jsx";
+import TopSongs from "./pages/topSongs.jsx";
 import Discover from "./pages/Discover.jsx";
 import Login from "./pages/Login.jsx";
 import Callback from "./pages/Callback.jsx";
@@ -34,6 +35,9 @@ const router = createBrowserRouter([
                 element: <LikedSongs />,
             },
             {
+                path: "/topSongs",
+                element: <TopSongs />,
+            },
                 path: "/discover",
                 element: <Discover />,
             },
