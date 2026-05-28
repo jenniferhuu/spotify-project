@@ -93,7 +93,7 @@ export default function TopSongs() {
         <div className="flex w-full h-screen bg-slate-50 overflow-hidden">
             <Navbar />
 
-            <main className="ml-52 flex-1 px-6 py-10 text-left sm:px-8 lg:px-12 overflow-y-auto">
+            <main className="ml-52 flex-1 h-full px-6 py-10 text-left sm:px-8 lg:px-12 overflow-y-auto">
                 <section className="space-y-3">
                     <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
                         Your Top Songs
@@ -115,8 +115,8 @@ export default function TopSongs() {
                                 aria-pressed={isActive}
                                 className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                                     isActive
-                                        ? "border-slate-900 bg-slate-900 text-white"
-                                        : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
+                                        ? "border-[#6FCF97] bg-[#6FCF97] text-white"
+                                        : "border-slate-300 bg-white text-slate-700 hover:border-[#6FCF97]"
                                 }`}
                             >
                                 {filter.label}

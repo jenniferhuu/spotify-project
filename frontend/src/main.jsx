@@ -8,6 +8,7 @@ import Home from "./pages/Home.jsx";
 import UserProfilePage from "./pages/UserProfilePage.jsx";
 import LikedSongs from "./pages/LikedSongs.jsx";
 import TopSongs from "./pages/topSongs.jsx";
+import TopArtists from "./pages/topArtists.jsx";
 import Discover from "./pages/Discover.jsx";
 import Login from "./pages/Login.jsx";
 import Callback from "./pages/Callback.jsx";
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
             {
                 path: "/likedsongs",
                 element: <LikedSongs />,
+            },
+            {
+                path: "/topartists",
+                element: <TopArtists />,
             },
             {
                 path: "/topSongs",
