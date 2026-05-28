@@ -11,6 +11,29 @@ const rangeOptions = [
     { id: "lastMonth", label: "Last Month" },
 ];
 
+const PROFILE_STORAGE_KEY = "musicAppProfile";
+
+function getStoredProfile(defaultProfile) {
+    const stored = localStorage.getItem(PROFILE_STORAGE_KEY);
+
+    if (!stored) {
+        return defaultProfile;
+    }
+
+    try {
+        return {
+            ...defaultProfile,
+            ...JSON.parse(stored),
+        };
+    } catch {
+        return defaultProfile;
+    }
+}
+
+function makeHandle(value) {
+    return value.replace(/^@+/, "").trim();
+}
+
 function getStoredSpotifyUser() {
     const possibleKeys = ["spotifyUser", "user", "currentUser"];
 
@@ -27,6 +50,14 @@ function getStoredSpotifyUser() {
     }
 
     return {};
+}
+
+function getSpotifyToken() {
+    return (
+        localStorage.getItem("spotifyToken") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("access_token")
+    );
 }
 
 function cleanHandle(value) {
@@ -67,7 +98,7 @@ function UserProfilePage() {
     const [topSongs, setTopSongs] = useState([]);
     const [likedSongs, setLikedSongs] = useState([]);
 
-    const [profile, setProfile] = useState({
+    const defaultProfile = {
         firstName: initialName.firstName,
         lastName: initialName.lastName,
         handle: initialHandle,
@@ -81,24 +112,54 @@ function UserProfilePage() {
         showLikedSongs: true,
         artistRange: "allTime",
         songRange: "allTime",
-    });
+    };
+
+    const [profile, setProfile] = useState(() => getStoredProfile(defaultProfile));
+
+    useEffect(() => {
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
+    }, [profile]);
 
     useEffect(() => {
         async function loadProfileData() {
+            const token = getSpotifyToken();
+
+            if (!token) {
+                console.warn("No Spotify token found in localStorage.");
+                setTopSongs([]);
+                setLikedSongs([]);
+                return;
+            }
+
             try {
                 const [topSongsResponse, likedSongsResponse] = await Promise.all([
                     axios.get(`${API_URL}/topSongs`, {
                         params: {
                             range: profile.songRange,
                         },
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
                     }),
-                    axios.get(`${API_URL}/songs/likedsongs`),
+                    axios.get(`${API_URL}/songs/likedsongs`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }),
                 ]);
+
+                console.log("Top songs response:", topSongsResponse.data);
+                console.log("Liked songs response:", likedSongsResponse.data);
 
                 setTopSongs(topSongsResponse.data.items ?? []);
                 setLikedSongs(likedSongsResponse.data.items ?? []);
             } catch (error) {
-                console.error("Failed to load profile Spotify data:", error);
+                console.error(
+                    "Failed to load profile Spotify data:",
+                    error.response?.data || error
+                );
+                setTopSongs([]);
+                setLikedSongs([]);
             }
         }
 
@@ -107,16 +168,32 @@ function UserProfilePage() {
 
     useEffect(() => {
         async function loadTopArtists() {
+            const token = getSpotifyToken();
+
+            if (!token) {
+                console.warn("No Spotify token found in localStorage.");
+                setTopArtists([]);
+                return;
+            }
+
             try {
                 const response = await axios.get(`${API_URL}/topArtists`, {
                     params: {
                         range: profile.artistRange,
                     },
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
+
+                console.log("Top artists response:", response.data);
 
                 setTopArtists(response.data.items ?? []);
             } catch (error) {
-                console.error("Failed to load top artists:", error);
+                console.error(
+                    "Failed to load top artists:",
+                    error.response?.data || error
+                );
                 setTopArtists([]);
             }
         }
@@ -165,6 +242,17 @@ function UserProfilePage() {
     }
 
     function saveProfile() {
+        const cleanedHandle = cleanHandle(profile.handle) || "user";
+        const cleanedProfile = {
+            ...profile,
+            firstName: profile.firstName.trim() || "User",
+            lastName: profile.lastName.trim(),
+            handle: cleanedHandle,
+            profileLink: `${window.location.origin}/profile/${cleanedHandle}`,
+        };
+
+        setProfile(cleanedProfile);
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(cleanedProfile));
         setIsEditing(false);
     }
 
