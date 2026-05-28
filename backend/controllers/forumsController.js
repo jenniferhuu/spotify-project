@@ -37,6 +37,24 @@ export async function postForum(req, res) {
     }
 }
 
+export async function deleteForumHandler(req, res) {
+    try {
+        const { forumId } = req.params;
+        const { userId } = req.body;
+        if (!userId) return res.status(400).json({ error: "Missing userId" });
+
+        const forums = await forumsService.listForums();
+        const forum = forums.find(f => f.id === forumId);
+        if (!forum) return res.status(404).json({ error: "Forum not found" });
+        if (forum.createdBy !== userId) return res.status(403).json({ error: "Not authorized to delete this forum" });
+
+        await forumsService.deleteForum(forumId);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 //Threads
 
 
@@ -89,7 +107,41 @@ export async function getThreadDetail(req, res) {
     }
 }
 
+export async function deleteThreadHandler(req, res) {
+    try {
+        const { forumId, threadId } = req.params;
+        const { userId } = req.body;
+        if (!userId) return res.status(400).json({ error: "Missing userId" });
+
+        const thread = await forumsService.getThread(forumId, threadId);
+        if (!thread) return res.status(404).json({ error: "Thread not found" });
+        if (thread.authorID !== userId) return res.status(403).json({ error: "Not authorized to delete this thread" });
+
+        await forumsService.deleteThread(forumId, threadId);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 //replies
+
+export async function deleteReplyHandler(req, res) {
+    try {
+        const { forumId, threadId, replyId } = req.params;
+        const { userId } = req.body;
+        if (!userId) return res.status(400).json({ error: "Missing userId" });
+
+        const reply = await forumsService.getReply(forumId, threadId, replyId);
+        if (!reply) return res.status(404).json({ error: "Reply not found" });
+        if (reply.authorID !== userId) return res.status(403).json({ error: "Not authorized to delete this reply" });
+
+        await forumsService.deleteReply(forumId, threadId, replyId);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
 
 export async function postReply(req, res) {
     try {

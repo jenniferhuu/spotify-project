@@ -4,11 +4,11 @@ import Navbar from '../components/Navbar';
 import ThreadCard from '../components/forums/ThreadCard';
 import CreateThreadModal from '../components/forums/CreateThreadModal';
 import { SearchIcon, PlusIcon, ArrowLeftIcon } from '../components/forums/ForumIcons';
-import { fetchThreads, searchThreads } from '../api/forums';
+import { fetchThreads, searchThreads, deleteThread } from '../api/forums';
 import { useAuth } from '../context/AuthProvider';
 
 export default function ThreadsPage() {
-    const { isAuthenticated } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const { forumId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -46,6 +46,16 @@ export default function ThreadsPage() {
                 const data = await searchThreads(forumId, q);
                 setThreads(data);
             }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function handleDeleteThread(threadId) {
+        if (!user) return;
+        try {
+            await deleteThread(forumId, threadId, user.spotifyId);
+            loadThreads();
         } catch (err) {
             console.error(err);
         }
@@ -144,6 +154,7 @@ export default function ThreadsPage() {
                                             `/forums/${forumId}/threads/${thread.id}`,
                                             { state: { threadTitle: thread.title, forumTitle } }
                                         )}
+                                        onDelete={user && thread.authorID === user.spotifyId ? handleDeleteThread : undefined}
                                     />
                                 ))}
                             </div>

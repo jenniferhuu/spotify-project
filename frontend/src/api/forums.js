@@ -12,6 +12,16 @@ export async function searchForums(q) {
     return res.json();
 }
 
+export async function deleteForum(forumId, userId) {
+    const res = await fetch(`${BASE}/${forumId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+    });
+    if (!res.ok) throw new Error('Failed to delete forum');
+    return res.json();
+}
+
 export async function createForum(data) {
     const res = await fetch(BASE, {
         method: 'POST',
@@ -31,6 +41,26 @@ export async function fetchThreads(forumId) {
 export async function searchThreads(forumId, q) {
     const res = await fetch(`${BASE}/${forumId}/threads/search?q=${encodeURIComponent(q)}`);
     if (!res.ok) throw new Error('Failed to search threads');
+    return res.json();
+}
+
+export async function deleteThread(forumId, threadId, userId) {
+    const res = await fetch(`${BASE}/${forumId}/threads/${threadId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+    });
+    if (!res.ok) throw new Error('Failed to delete thread');
+    return res.json();
+}
+
+export async function deleteReply(forumId, threadId, replyId, userId) {
+    const res = await fetch(`${BASE}/${forumId}/threads/${threadId}/replies/${replyId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+    });
+    if (!res.ok) throw new Error('Failed to delete reply');
     return res.json();
 }
 
