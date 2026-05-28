@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar.jsx";
@@ -130,10 +130,48 @@ function UserProfilePage() {
     const [profile, setProfile] = useState(() =>
         getStoredProfile(defaultProfile),
     );
+    const privacyLoadedRef = useRef(false);
 
     useEffect(() => {
         localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
     }, [profile]);
+
+    useEffect(() => {
+        async function loadPrivacyFromBackend() {
+            const spotifyId = spotifyUser.spotifyId || spotifyUser.id;
+            if (!spotifyId) return;
+
+            try {
+                const response = await axios.get(`${API_URL}/users/${spotifyId}`);
+                setProfile((prev) => ({
+                    ...prev,
+                    isPublic: !response.data.isPrivate,
+                }));
+            } catch (error) {
+                console.error("Failed to load privacy from backend:", error);
+            } finally {
+                privacyLoadedRef.current = true;
+            }
+        }
+
+        loadPrivacyFromBackend();
+    }, []);
+
+    useEffect(() => {
+        if (!privacyLoadedRef.current) return;
+
+        const spotifyId = spotifyUser.spotifyId || spotifyUser.id;
+        if (!spotifyId) return;
+
+        axios
+            .patch(`${API_URL}/users/privacy`, {
+                spotifyId,
+                isPrivate: !profile.isPublic,
+            })
+            .catch((error) =>
+                console.error("Failed to sync privacy setting:", error),
+            );
+    }, [profile.isPublic]);
 
     useEffect(() => {
         async function loadProfileData() {
