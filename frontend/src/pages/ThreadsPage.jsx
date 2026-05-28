@@ -5,7 +5,7 @@ import ThreadCard from '../components/forums/ThreadCard';
 import CreateThreadModal from '../components/forums/CreateThreadModal';
 import { SearchIcon, PlusIcon, ArrowLeftIcon } from '../components/forums/ForumIcons';
 import { fetchThreads, searchThreads, deleteThread } from '../api/forums';
-import { useAuth } from '../context/AuthProvider';
+import { useAuth } from '../context/useAuth.js';
 
 export default function ThreadsPage() {
     const { user, isAuthenticated } = useAuth();
@@ -16,23 +16,40 @@ export default function ThreadsPage() {
 
     const [threads, setThreads] = useState([]);
     const [search, setSearch] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [loadedKey, setLoadedKey] = useState(null);
+    const [refreshToken, setRefreshToken] = useState(0);
     const [showModal, setShowModal] = useState(false);
 
-    useEffect(() => {
-        loadThreads();
-    }, [forumId]);
+    const requestKey = `${forumId}:${refreshToken}`;
+    const loading = loadedKey !== requestKey;
 
-    async function loadThreads() {
-        try {
-            setLoading(true);
-            const data = await fetchThreads(forumId);
-            setThreads(data);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
+    useEffect(() => {
+        let cancelled = false;
+
+        (async () => {
+            try {
+                const data = await fetchThreads(forumId);
+                if (cancelled) {
+                    return;
+                }
+
+                setThreads(data);
+                setLoadedKey(requestKey);
+            } catch (err) {
+                if (!cancelled) {
+                    console.error(err);
+                    setLoadedKey(requestKey);
+                }
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [forumId, requestKey]);
+
+    function refreshThreads() {
+        setRefreshToken((current) => current + 1);
     }
 
     async function handleSearch(e) {
@@ -55,7 +72,7 @@ export default function ThreadsPage() {
         if (!user) return;
         try {
             await deleteThread(forumId, threadId, user.spotifyId);
-            loadThreads();
+            refreshThreads();
         } catch (err) {
             console.error(err);
         }
@@ -167,7 +184,7 @@ export default function ThreadsPage() {
                     <CreateThreadModal
                         forumId={forumId}
                         onClose={() => setShowModal(false)}
-                        onCreated={loadThreads}
+                        onCreated={refreshThreads}
                     />
                 )}
             </main>

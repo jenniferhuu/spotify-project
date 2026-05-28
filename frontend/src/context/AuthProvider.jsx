@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { useCallback, useState } from "react";
 
-export const AuthContext = createContext(null);
+import { AuthContext } from "./authContext.js";
 
 const savedUserKey = "songs_app_user";
 const savedTokenKey = "songs_app_token";
@@ -51,12 +51,4 @@ export function AuthProvider({ children }) {
     return (
         <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
     );
-}
-
-export function useAuth() {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
-    return context;
 }

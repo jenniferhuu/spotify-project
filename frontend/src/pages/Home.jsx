@@ -1,4 +1,4 @@
-import { useAuth } from "../context/AuthProvider.jsx";
+import { useAuth } from "../context/useAuth.js";
 import Navbar from "../components/Navbar";
 
 export default function Home() {
