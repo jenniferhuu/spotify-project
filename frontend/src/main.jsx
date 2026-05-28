@@ -12,6 +12,9 @@ import Discover from "./pages/Discover.jsx";
 import Login from "./pages/Login.jsx";
 import Callback from "./pages/Callback.jsx";
 import TopArtistsPage from "./pages/TopArtistsPage.jsx";
+import ForumsPage from "./pages/ForumsPage.jsx";
+import ThreadsPage from "./pages/ThreadsPage.jsx";
+import ThreadDetailPage from "./pages/ThreadDetailPage.jsx";
 
 import { AuthProvider } from "./context/AuthProvider.jsx";
 
@@ -49,9 +52,21 @@ const router = createBrowserRouter([
                 element: <Discover />,
             },
             {
-                path: "topartists",
+                path: "/topartists",
                 element: <TopArtistsPage />,
-            }
+            },
+            {
+                path: "/forums",
+                element: <ForumsPage />,
+            },
+            {
+                path: "/forums/:forumId",
+                element: <ThreadsPage />,
+            },
+            {
+                path: "/forums/:forumId/threads/:threadId",
+                element: <ThreadDetailPage />,
+            },
         ],
     },
 ]);

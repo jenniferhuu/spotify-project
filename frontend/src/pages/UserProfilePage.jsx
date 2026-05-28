@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar.jsx";
 
-const API_URL = "http://127.0.0.1:5001";
+const API_URL = "http://127.0.0.1:5000";
 
 const rangeOptions = [
     { id: "allTime", label: "All Time" },
@@ -34,8 +34,22 @@ function makeHandle(value) {
     return value.replace(/^@+/, "").trim();
 }
 
+function getSpotifyToken() {
+    return (
+        localStorage.getItem("songs_app_token") ||
+        localStorage.getItem("spotifyToken") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("access_token")
+    );
+}
+
 function getStoredSpotifyUser() {
-    const possibleKeys = ["spotifyUser", "user", "currentUser"];
+    const possibleKeys = [
+        "songs_app_user",
+        "spotifyUser",
+        "user",
+        "currentUser",
+    ];
 
     for (const key of possibleKeys) {
         const stored = localStorage.getItem(key);
@@ -52,14 +66,6 @@ function getStoredSpotifyUser() {
     return {};
 }
 
-function getSpotifyToken() {
-    return (
-        localStorage.getItem("spotifyToken") ||
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("access_token")
-    );
-}
-
 function cleanHandle(value) {
     return String(value || "")
         .replace(/^@+/, "")
@@ -68,7 +74,9 @@ function cleanHandle(value) {
 }
 
 function splitDisplayName(name) {
-    const parts = String(name || "User").trim().split(/\s+/);
+    const parts = String(name || "User")
+        .trim()
+        .split(/\s+/);
     const firstName = parts[0] || "User";
     const lastName = parts.slice(1).join(" ");
 
@@ -76,18 +84,27 @@ function splitDisplayName(name) {
 }
 
 function getProfileName(profile) {
-    return [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "User";
+    return (
+        [profile.firstName, profile.lastName].filter(Boolean).join(" ") ||
+        "User"
+    );
 }
 
 function UserProfilePage() {
     const spotifyUser = getStoredSpotifyUser();
 
     const spotifyDisplayName =
-        spotifyUser.display_name || spotifyUser.name || spotifyUser.username || "User";
-    const profilePic = spotifyUser.profilePic || spotifyUser.images?.[0]?.url || "";
+        spotifyUser.display_name ||
+        spotifyUser.name ||
+        spotifyUser.username ||
+        "User";
+    const profilePic =
+        spotifyUser.profilePic || spotifyUser.images?.[0]?.url || "";
     const initialName = splitDisplayName(spotifyDisplayName);
     const initialHandle =
-        cleanHandle(spotifyUser.handle || spotifyUser.id || spotifyUser.username) ||
+        cleanHandle(
+            spotifyUser.handle || spotifyUser.id || spotifyUser.username,
+        ) ||
         cleanHandle(spotifyDisplayName) ||
         "user";
 
@@ -114,7 +131,9 @@ function UserProfilePage() {
         songRange: "allTime",
     };
 
-    const [profile, setProfile] = useState(() => getStoredProfile(defaultProfile));
+    const [profile, setProfile] = useState(() =>
+        getStoredProfile(defaultProfile),
+    );
 
     useEffect(() => {
         localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
@@ -132,21 +151,22 @@ function UserProfilePage() {
             }
 
             try {
-                const [topSongsResponse, likedSongsResponse] = await Promise.all([
-                    axios.get(`${API_URL}/topSongs`, {
-                        params: {
-                            range: profile.songRange,
-                        },
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }),
-                    axios.get(`${API_URL}/songs/likedsongs`, {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }),
-                ]);
+                const [topSongsResponse, likedSongsResponse] =
+                    await Promise.all([
+                        axios.get(`${API_URL}/topSongs`, {
+                            params: {
+                                range: profile.songRange,
+                            },
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }),
+                        axios.get(`${API_URL}/songs/likedsongs`, {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }),
+                    ]);
 
                 console.log("Top songs response:", topSongsResponse.data);
                 console.log("Liked songs response:", likedSongsResponse.data);
@@ -156,7 +176,7 @@ function UserProfilePage() {
             } catch (error) {
                 console.error(
                     "Failed to load profile Spotify data:",
-                    error.response?.data || error
+                    error.response?.data || error,
                 );
                 setTopSongs([]);
                 setLikedSongs([]);
@@ -192,7 +212,7 @@ function UserProfilePage() {
             } catch (error) {
                 console.error(
                     "Failed to load top artists:",
-                    error.response?.data || error
+                    error.response?.data || error,
                 );
                 setTopArtists([]);
             }
@@ -252,7 +272,10 @@ function UserProfilePage() {
         };
 
         setProfile(cleanedProfile);
-        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(cleanedProfile));
+        localStorage.setItem(
+            PROFILE_STORAGE_KEY,
+            JSON.stringify(cleanedProfile),
+        );
         setIsEditing(false);
     }
 
@@ -266,7 +289,7 @@ function UserProfilePage() {
         <div className="flex w-full h-screen bg-slate-50 overflow-hidden">
             <Navbar />
 
-            <main className="flex-1 overflow-y-auto px-8 py-8 text-black">
+            <main className="ml-52 flex-1 overflow-y-auto px-8 py-8 text-black">
                 <div className="mx-auto max-w-[1320px]">
                     <header className="mb-7 flex items-end justify-between">
                         <div>
@@ -274,7 +297,8 @@ function UserProfilePage() {
                                 My Profile
                             </h1>
                             <p className="mt-2 text-sm text-gray-600">
-                                Customize how other music fans see and connect with you.
+                                Customize how other music fans see and connect
+                                with you.
                             </p>
                         </div>
 
@@ -325,8 +349,12 @@ function UserProfilePage() {
                                                             </label>
                                                             <input
                                                                 name="firstName"
-                                                                value={profile.firstName}
-                                                                onChange={handleChange}
+                                                                value={
+                                                                    profile.firstName
+                                                                }
+                                                                onChange={
+                                                                    handleChange
+                                                                }
                                                                 className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
                                                                 placeholder="First name"
                                                             />
@@ -338,8 +366,12 @@ function UserProfilePage() {
                                                             </label>
                                                             <input
                                                                 name="lastName"
-                                                                value={profile.lastName}
-                                                                onChange={handleChange}
+                                                                value={
+                                                                    profile.lastName
+                                                                }
+                                                                onChange={
+                                                                    handleChange
+                                                                }
                                                                 className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
                                                                 placeholder="Last name"
                                                             />
@@ -349,7 +381,8 @@ function UserProfilePage() {
 
                                                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                                                     <h3 className="mb-3 text-sm font-bold">
-                                                        Customize Username Handle
+                                                        Customize Username
+                                                        Handle
                                                     </h3>
 
                                                     <label className="mb-1 block text-xs font-semibold text-gray-500">
@@ -361,8 +394,12 @@ function UserProfilePage() {
                                                         </span>
                                                         <input
                                                             name="handle"
-                                                            value={profile.handle}
-                                                            onChange={handleChange}
+                                                            value={
+                                                                profile.handle
+                                                            }
+                                                            onChange={
+                                                                handleChange
+                                                            }
                                                             className="min-w-0 flex-1 border-none bg-transparent text-sm outline-none"
                                                             placeholder="username"
                                                         />
@@ -409,15 +446,20 @@ function UserProfilePage() {
                                         }
                                         className="h-fit rounded-md bg-[#74ce97] px-7 py-2 text-sm font-semibold hover:bg-[#63c98b]"
                                     >
-                                        {isEditing ? "Save Profile" : "Edit Profile"}
+                                        {isEditing
+                                            ? "Save Profile"
+                                            : "Edit Profile"}
                                     </button>
                                 </div>
 
                                 <div className="mt-7 flex items-center justify-between rounded-lg bg-gray-50 px-5 py-4">
                                     <div>
-                                        <h3 className="font-bold">Public Profile</h3>
+                                        <h3 className="font-bold">
+                                            Public Profile
+                                        </h3>
                                         <p className="mt-1 text-sm text-gray-600">
-                                            Toggle off to hide your profile from Discover.
+                                            Toggle off to hide your profile from
+                                            Discover.
                                         </p>
                                     </div>
 
@@ -434,7 +476,8 @@ function UserProfilePage() {
                                     Choose what appears on your public profile
                                 </h2>
                                 <p className="mt-1 text-sm text-gray-600">
-                                    Pick which Spotify activity sections visitors can see.
+                                    Pick which Spotify activity sections
+                                    visitors can see.
                                 </p>
 
                                 <div className="mt-6 grid gap-4">
@@ -449,7 +492,10 @@ function UserProfilePage() {
                                         <RangeButtons
                                             selected={profile.artistRange}
                                             onSelect={(value) =>
-                                                updateRange("artistRange", value)
+                                                updateRange(
+                                                    "artistRange",
+                                                    value,
+                                                )
                                             }
                                         />
                                     </DisplayRow>
@@ -482,7 +528,9 @@ function UserProfilePage() {
                             </section>
 
                             <section className="rounded-xl border border-gray-300 bg-white p-7 shadow-sm">
-                                <h2 className="text-xl font-bold">Profile Settings</h2>
+                                <h2 className="text-xl font-bold">
+                                    Profile Settings
+                                </h2>
                                 <p className="mt-1 text-sm text-gray-600">
                                     Control messaging and sharing options.
                                 </p>
@@ -496,12 +544,15 @@ function UserProfilePage() {
                                                     Who can message you
                                                 </h3>
                                                 <p className="mt-1 text-sm text-gray-600">
-                                                    Choose who is allowed to message you.
+                                                    Choose who is allowed to
+                                                    message you.
                                                 </p>
 
                                                 <select
                                                     name="messagePermission"
-                                                    value={profile.messagePermission}
+                                                    value={
+                                                        profile.messagePermission
+                                                    }
                                                     onChange={handleChange}
                                                     className="mt-4 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
                                                 >
@@ -527,21 +578,28 @@ function UserProfilePage() {
                                                     Profile Link
                                                 </h3>
                                                 <p className="mt-1 text-sm text-gray-600">
-                                                    Share your profile with others.
+                                                    Share your profile with
+                                                    others.
                                                 </p>
 
                                                 <div className="mt-4 flex">
                                                     <input
-                                                        value={profile.profileLink}
+                                                        value={
+                                                            profile.profileLink
+                                                        }
                                                         readOnly
                                                         className="min-w-0 flex-1 rounded-l-md border border-gray-300 px-3 py-2 text-sm"
                                                     />
                                                     <button
                                                         type="button"
-                                                        onClick={copyProfileLink}
+                                                        onClick={
+                                                            copyProfileLink
+                                                        }
                                                         className="rounded-r-md bg-[#74ce97] px-4 py-2 text-sm font-semibold hover:bg-[#63c98b]"
                                                     >
-                                                        {copied ? "Copied" : "Copy"}
+                                                        {copied
+                                                            ? "Copied"
+                                                            : "Copy"}
                                                     </button>
                                                 </div>
                                             </div>
@@ -586,7 +644,9 @@ function UserProfilePage() {
                                     <p className="text-sm text-gray-600">
                                         @{handleText}
                                     </p>
-                                    <p className="mt-2 text-sm">{profile.bio}</p>
+                                    <p className="mt-2 text-sm">
+                                        {profile.bio}
+                                    </p>
                                 </div>
 
                                 {profile.showTopArtists && (
@@ -598,34 +658,45 @@ function UserProfilePage() {
                                             <EmptyPreview message="No top artists loaded yet." />
                                         ) : (
                                             <div className="grid grid-cols-4 gap-4">
-                                                {previewArtists.map((artist, index) => {
-                                                    const image =
-                                                        artist.images?.[0]?.url ||
-                                                        artist.image ||
-                                                        artist.imageUrl;
+                                                {previewArtists.map(
+                                                    (artist, index) => {
+                                                        const image =
+                                                            artist.images?.[0]
+                                                                ?.url ||
+                                                            artist.image ||
+                                                            artist.imageUrl;
 
-                                                    return (
-                                                        <div
-                                                            key={artist.id || artist.name || index}
-                                                            className="text-center"
-                                                        >
-                                                            {image ? (
-                                                                <img
-                                                                    src={image}
-                                                                    alt={artist.name}
-                                                                    className="mx-auto h-16 w-16 rounded-full object-cover bg-[#dceee2]"
-                                                                />
-                                                            ) : (
-                                                                <div className="mx-auto h-16 w-16 rounded-full bg-[#dceee2]" />
-                                                            )}
-                                                            <p className="mt-2 truncate text-xs text-gray-600">
-                                                                {artist.name ||
-                                                                    artist.artist ||
-                                                                    `Artist ${index + 1}`}
-                                                            </p>
-                                                        </div>
-                                                    );
-                                                })}
+                                                        return (
+                                                            <div
+                                                                key={
+                                                                    artist.id ||
+                                                                    artist.name ||
+                                                                    index
+                                                                }
+                                                                className="text-center"
+                                                            >
+                                                                {image ? (
+                                                                    <img
+                                                                        src={
+                                                                            image
+                                                                        }
+                                                                        alt={
+                                                                            artist.name
+                                                                        }
+                                                                        className="mx-auto h-16 w-16 rounded-full object-cover bg-[#dceee2]"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="mx-auto h-16 w-16 rounded-full bg-[#dceee2]" />
+                                                                )}
+                                                                <p className="mt-2 truncate text-xs text-gray-600">
+                                                                    {artist.name ||
+                                                                        artist.artist ||
+                                                                        `Artist ${index + 1}`}
+                                                                </p>
+                                                            </div>
+                                                        );
+                                                    },
+                                                )}
                                             </div>
                                         )}
                                     </PreviewSection>
@@ -640,53 +711,73 @@ function UserProfilePage() {
                                             <EmptyPreview message="No top songs loaded yet." />
                                         ) : (
                                             <div className="space-y-4">
-                                                {previewSongs.map((song, index) => {
-                                                    const title =
-                                                        song.title ||
-                                                        song.name ||
-                                                        song.track?.name ||
-                                                        `Song ${index + 1}`;
+                                                {previewSongs.map(
+                                                    (song, index) => {
+                                                        const title =
+                                                            song.title ||
+                                                            song.name ||
+                                                            song.track?.name ||
+                                                            `Song ${index + 1}`;
 
-                                                    const artist =
-                                                        song.artist ||
-                                                        song.artists
-                                                            ?.map((a) => a.name)
-                                                            .join(", ") ||
-                                                        song.track?.artists
-                                                            ?.map((a) => a.name)
-                                                            .join(", ") ||
-                                                        "Artist name";
+                                                        const artist =
+                                                            song.artist ||
+                                                            song.artists
+                                                                ?.map(
+                                                                    (a) =>
+                                                                        a.name,
+                                                                )
+                                                                .join(", ") ||
+                                                            song.track?.artists
+                                                                ?.map(
+                                                                    (a) =>
+                                                                        a.name,
+                                                                )
+                                                                .join(", ") ||
+                                                            "Artist name";
 
-                                                    const image =
-                                                        song.image ||
-                                                        song.album?.images?.[0]?.url ||
-                                                        song.track?.album?.images?.[0]?.url;
+                                                        const image =
+                                                            song.imageUrl ||
+                                                            song.album
+                                                                ?.images?.[0]
+                                                                ?.url ||
+                                                            song.track?.album
+                                                                ?.images?.[0]
+                                                                ?.url;
 
-                                                    return (
-                                                        <div
-                                                            key={song.id || song.rank || index}
-                                                            className="flex items-center gap-4"
-                                                        >
-                                                            {image ? (
-                                                                <img
-                                                                    src={image}
-                                                                    alt={title}
-                                                                    className="h-14 w-14 rounded-md object-cover bg-[#d9d9d9]"
-                                                                />
-                                                            ) : (
-                                                                <div className="h-14 w-14 rounded-md bg-[#d9d9d9]" />
-                                                            )}
-                                                            <div>
-                                                                <p className="text-sm font-medium">
-                                                                    {title}
-                                                                </p>
-                                                                <p className="text-xs text-gray-500">
-                                                                    {artist}
-                                                                </p>
+                                                        return (
+                                                            <div
+                                                                key={
+                                                                    song.id ||
+                                                                    song.rank ||
+                                                                    index
+                                                                }
+                                                                className="flex items-center gap-4"
+                                                            >
+                                                                {image ? (
+                                                                    <img
+                                                                        src={
+                                                                            image
+                                                                        }
+                                                                        alt={
+                                                                            title
+                                                                        }
+                                                                        className="h-14 w-14 rounded-md object-cover bg-[#d9d9d9]"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="h-14 w-14 rounded-md bg-[#d9d9d9]" />
+                                                                )}
+                                                                <div>
+                                                                    <p className="text-sm font-medium">
+                                                                        {title}
+                                                                    </p>
+                                                                    <p className="text-xs text-gray-500">
+                                                                        {artist}
+                                                                    </p>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    );
-                                                })}
+                                                        );
+                                                    },
+                                                )}
                                             </div>
                                         )}
                                     </PreviewSection>
@@ -701,34 +792,51 @@ function UserProfilePage() {
                                             <EmptyPreview message="No liked songs loaded yet." />
                                         ) : (
                                             <div className="grid grid-cols-4 gap-4">
-                                                {previewLikedSongs.map((song, index) => {
-                                                    const track = song.track || song;
-                                                    const title =
-                                                        track.name ||
-                                                        song.title ||
-                                                        `Liked ${index + 1}`;
-                                                    const image =
-                                                        song.image ||
-                                                        track.album?.images?.[0]?.url ||
-                                                        song.album?.images?.[0]?.url;
+                                                {previewLikedSongs.map(
+                                                    (song, index) => {
+                                                        const track =
+                                                            song.track || song;
+                                                        const title =
+                                                            track.name ||
+                                                            song.title ||
+                                                            `Liked ${index + 1}`;
+                                                        const image =
+                                                            song.image ||
+                                                            track.album
+                                                                ?.images?.[0]
+                                                                ?.url ||
+                                                            song.album
+                                                                ?.images?.[0]
+                                                                ?.url;
 
-                                                    return (
-                                                        <div key={track.id || song.id || index}>
-                                                            {image ? (
-                                                                <img
-                                                                    src={image}
-                                                                    alt={title}
-                                                                    className="aspect-square rounded-md object-cover bg-[#d9d9d9]"
-                                                                />
-                                                            ) : (
-                                                                <div className="aspect-square rounded-md bg-[#d9d9d9]" />
-                                                            )}
-                                                            <p className="mt-2 truncate text-xs text-gray-600">
-                                                                {title}
-                                                            </p>
-                                                        </div>
-                                                    );
-                                                })}
+                                                        return (
+                                                            <div
+                                                                key={
+                                                                    track.id ||
+                                                                    song.id ||
+                                                                    index
+                                                                }
+                                                            >
+                                                                {image ? (
+                                                                    <img
+                                                                        src={
+                                                                            image
+                                                                        }
+                                                                        alt={
+                                                                            title
+                                                                        }
+                                                                        className="aspect-square rounded-md object-cover bg-[#d9d9d9]"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="aspect-square rounded-md bg-[#d9d9d9]" />
+                                                                )}
+                                                                <p className="mt-2 truncate text-xs text-gray-600">
+                                                                    {title}
+                                                                </p>
+                                                            </div>
+                                                        );
+                                                    },
+                                                )}
                                             </div>
                                         )}
                                     </PreviewSection>
@@ -743,7 +851,9 @@ function UserProfilePage() {
 }
 
 function getRangeLabel(rangeId) {
-    return rangeOptions.find((range) => range.id === rangeId)?.label || "All Time";
+    return (
+        rangeOptions.find((range) => range.id === rangeId)?.label || "All Time"
+    );
 }
 
 function EmptyPreview({ message }) {
@@ -768,7 +878,9 @@ function DisplayRow({
                     <div>
                         <h3 className="font-bold">{title}</h3>
                         {subtitle && (
-                            <p className="mt-1 text-sm text-gray-600">{subtitle}</p>
+                            <p className="mt-1 text-sm text-gray-600">
+                                {subtitle}
+                            </p>
                         )}
                         {children}
                     </div>

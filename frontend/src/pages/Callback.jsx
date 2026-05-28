@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
-import { useAuth } from "../context/AuthProvider.jsx";
+import { useAuth } from "../context/useAuth.js";
 
 function decodeUser(encodedUser) {
     const base64 = encodedUser.replace(/-/g, "+").replace(/_/g, "/");
@@ -29,42 +29,55 @@ function saveSpotifySession(user, token) {
     window.localStorage.setItem("currentUser", JSON.stringify(user));
 }
 
+function getCallbackState(searchParams) {
+    const spotifyError = searchParams.get("error");
+    if (spotifyError) {
+        return { error: spotifyError, shouldLogin: false };
+    }
+
+    const encodedUser = searchParams.get("user");
+    const token = searchParams.get("token");
+
+    if (!encodedUser || !token) {
+        return {
+            error: "Spotify did not return a valid login session.",
+            shouldLogin: false,
+        };
+    }
+
+    try {
+        return {
+            error: "",
+            shouldLogin: true,
+            user: decodeUser(encodedUser),
+            token,
+        };
+    } catch (decodeError) {
+        console.error(decodeError);
+        return {
+            error: "Could not read the Spotify profile.",
+            shouldLogin: false,
+        };
+    }
+}
+
 export default function SpotifyCallBack() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { completeSpotifyLogin } = useAuth();
-    const [error, setError] = useState("");
+    const { error, shouldLogin, user, token } = useMemo(
+        () => getCallbackState(searchParams),
+        [searchParams],
+    );
 
     useEffect(() => {
-        const spotifyError = searchParams.get("error");
-        const encodedUser = searchParams.get("user");
-        const token = searchParams.get("token");
-
-        if (spotifyError) {
-            setError(spotifyError);
+        if (!shouldLogin) {
             return;
         }
 
-        if (!encodedUser || !token) {
-            setError("Spotify did not return a valid login session.");
-            return;
-        }
-
-        try {
-            const decodedUser = decodeUser(encodedUser);
-
-            completeSpotifyLogin(decodedUser, token);
-            saveSpotifySession(decodedUser, token);
-
-            console.log("Spotify login completed.");
-            console.log("Spotify token saved:", Boolean(token));
-
-            navigate("/", { replace: true });
-        } catch (decodeError) {
-            console.error(decodeError);
-            setError("Could not read the Spotify profile.");
-        }
-    }, [completeSpotifyLogin, navigate, searchParams]);
+        completeSpotifyLogin(user, token);
+        navigate("/", { replace: true });
+    }, [completeSpotifyLogin, navigate, shouldLogin, token, user]);
 
     if (error) {
         return (

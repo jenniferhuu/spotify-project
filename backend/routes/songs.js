@@ -4,14 +4,18 @@ const router = express.Router();
 
 router.get("/likedsongs", async (req, res) => {
     try {
-        const token = req.headers.authorization?.replace("Bearer ", "");
+        const authHeader = req.headers.authorization;
 
-        if (!token) {
-            return res.status(401).json({ message: "Missing Spotify token" });
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res
+                .status(401)
+                .json({ message: "Access denied: issue with token" });
         }
 
+        const token = authHeader.split(" ")[1];
+
         const response = await fetch(
-            "https://api.spotify.com/v1/me/tracks?limit=20",
+            "https://api.spotify.com/v1/me/tracks?limit=50",
             {
                 method: "GET",
                 headers: {
@@ -19,6 +23,14 @@ router.get("/likedsongs", async (req, res) => {
                 },
             },
         );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            return res.status(response.status).json({
+                message: "Spotify API error",
+                details: errorData,
+            });
+        }
 
         if (!response.ok) {
             const errorText = await response.text();

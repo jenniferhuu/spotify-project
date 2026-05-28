@@ -8,21 +8,22 @@ export default function Discover() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch("http://localhost:5001/users")
+        fetch("http://localhost:5000/users")
             .then((res) => res.json())
             .then((data) => setUsers(data.users))
             .catch((err) => console.error("Failed to fetch users:", err));
     }, []);
 
-    const filtered = users.filter((u) =>
-        u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.spotifyId.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = users.filter(
+        (u) =>
+            u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            u.spotifyId.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     return (
-        <div className="flex w-full h-screen bg-slate-50 overflow-hidden">
+        <div className="min-h-screen bg-slate-50 overflow-x-hidden">
             <Navbar />
-            <div className="flex-1 h-full p-8 overflow-y-auto">
+            <div className="ml-52 min-h-screen p-8">
                 <h1 className="text-2xl font-bold text-slate-900 mb-1">
                     Discover People
                 </h1>
@@ -54,7 +55,8 @@ export default function Discover() {
                 </div>
 
                 <p className="text-sm text-slate-500 mb-4">
-                    {filtered.length} {filtered.length === 1 ? "person" : "people"}
+                    {filtered.length}{" "}
+                    {filtered.length === 1 ? "person" : "people"}
                 </p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
@@ -89,7 +91,9 @@ export default function Discover() {
                             </p>
 
                             <button
-                                onClick={() => navigate(`/inbox?startChat=${user.id}`)}
+                                onClick={() =>
+                                    navigate(`/inbox?startChat=${user.id}`)
+                                }
                                 className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#1F6F5F] text-[#1F6F5F] text-xs font-medium hover:bg-[#1F6F5F] hover:text-white transition-colors duration-150 cursor-pointer"
                             >
                                 <svg

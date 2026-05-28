@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { useAuth } from "../context/useAuth.js";
 import Navbar from "../components/Navbar";
 import SongRow from "../components/SongRow";
 
@@ -13,31 +14,29 @@ function getSpotifyToken() {
 }
 
 export default function LikedSongs() {
+    const { token } = useAuth();
+
     const [songs, setSongs] = useState([]);
+    const [visibleCount, setVisibleCount] = useState(20);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [searchName, setSearchName] = useState("");
 
     useEffect(() => {
+        if (!token) return;
+
         const fetchLikedSongs = async () => {
             setLoading(true);
             setError("");
 
             try {
-                const token = getSpotifyToken();
-
                 console.log("Liked songs token found:", Boolean(token));
                 console.log(
                     "Liked songs token preview:",
                     token ? token.slice(0, 12) : "none",
                 );
-
-                if (!token) {
-                    throw new Error("Missing Spotify token");
-                }
-
                 const response = await axios.get(
-                    "http://127.0.0.1:5001/songs/likedsongs",
+                    "http://localhost:5000/songs/likedsongs",
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -61,7 +60,7 @@ export default function LikedSongs() {
         };
 
         fetchLikedSongs();
-    }, []);
+    }, [token]);
 
     const filteredSongs = songs.filter((song) => {
         const track = song.track || song;
@@ -78,9 +77,7 @@ export default function LikedSongs() {
             "";
 
         const albumName =
-            track.album?.name?.toLowerCase() ||
-            song.album?.toLowerCase() ||
-            "";
+            track.album?.name?.toLowerCase() || song.album?.toLowerCase() || "";
 
         const query = searchName.toLowerCase();
 
@@ -90,6 +87,12 @@ export default function LikedSongs() {
             albumName.includes(query)
         );
     });
+
+    const songsToDisplay = filteredSongs.slice(0, visibleCount);
+
+    const handleShowMore = () => {
+        setVisibleCount((prev) => prev + 10);
+    };
 
     if (loading) {
         return (
@@ -106,7 +109,7 @@ export default function LikedSongs() {
         <div className="flex w-full h-screen bg-slate-50 overflow-hidden">
             <Navbar />
 
-            <div className="flex-1 h-full p-8 overflow-y-auto">
+            <div className="ml-52 flex-1 h-full p-8 overflow-y-auto">
                 <div className="mx-auto flex flex-col gap-2">
                     <h2 className="text-3xl font-bold mb-6 tracking-tight text-slate-900">
                         Your Liked Songs
@@ -129,31 +132,45 @@ export default function LikedSongs() {
                                 {error}
                             </h3>
                             <p className="text-xs text-rose-500">
-                                Try logging out and logging back in with Spotify.
+                                Try logging out and logging back in with
+                                Spotify.
                             </p>
                         </div>
-                    ) : filteredSongs.length === 0 ? (
+                    ) : songsToDisplay.length === 0 ? (
                         <div className="p-12 text-center bg-white border border-slate-200 rounded-xl shadow-sm mt-2">
                             <span className="text-3xl block mb-2">🔍</span>
                             <h3 className="text-sm font-medium text-slate-800 mb-1">
                                 No songs found
                             </h3>
                             <p className="text-xs text-slate-500">
-                                Check the spelling, or try entering a different song
-                                title, artist, or album.
+                                Check the spelling, or try entering a different
+                                song title, artist, or album.
                             </p>
                         </div>
                     ) : (
-                        <ul className="flex flex-col gap-2">
-                            {filteredSongs.map((song, index) => (
-                                <li
-                                    key={song.track?.id || song.id || index}
-                                    className="list-none"
+                        <>
+                            <ul className="flex flex-col gap-2">
+                                {songsToDisplay.map((song, index) => (
+                                    <li
+                                        key={song.track?.id || song.id || index}
+                                        className="list-none"
+                                    >
+                                        <SongRow
+                                            songData={song}
+                                            index={index + 1}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                            {filteredSongs.length > visibleCount && (
+                                <button
+                                    onClick={handleShowMore}
+                                    className="mt-4 mx-auto px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-full transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                                 >
-                                    <SongRow songData={song} index={index + 1} />
-                                </li>
-                            ))}
-                        </ul>
+                                    Show More
+                                </button>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
