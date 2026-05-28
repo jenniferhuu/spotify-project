@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createReply } from '../../api/forums';
-import { useAuth } from '../../context/AuthProvider';
+import { useAuth } from '../../context/useAuth.js';
 
 export default function CreateReplyForm({ forumId, threadId, onReplyPosted }) {
     const { user, isAuthenticated } = useAuth();

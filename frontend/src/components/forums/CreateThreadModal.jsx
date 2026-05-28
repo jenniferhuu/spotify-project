@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createThread } from '../../api/forums';
-import { useAuth } from '../../context/AuthProvider';
+import { useAuth } from '../../context/useAuth.js';
 
 const fieldStyle = {
     width: '100%',
