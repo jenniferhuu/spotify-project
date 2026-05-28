@@ -12,23 +12,6 @@ function decodeUser(encodedUser) {
     return JSON.parse(window.atob(paddedBase64));
 }
 
-function saveSpotifySession(user, token) {
-    if (!token) return;
-
-    window.localStorage.setItem("songs_app_user", JSON.stringify(user));
-    window.localStorage.setItem("songs_app_token", token);
-
-    // Compatibility keys used by TopSongs, TopArtists, and Profile pages.
-    window.localStorage.setItem("spotifyToken", token);
-    window.localStorage.setItem("accessToken", token);
-    window.localStorage.setItem("access_token", token);
-
-    // Compatibility user keys used by profile helpers.
-    window.localStorage.setItem("spotifyUser", JSON.stringify(user));
-    window.localStorage.setItem("user", JSON.stringify(user));
-    window.localStorage.setItem("currentUser", JSON.stringify(user));
-}
-
 function getCallbackState(searchParams) {
     const spotifyError = searchParams.get("error");
     if (spotifyError) {

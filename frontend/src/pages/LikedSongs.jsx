@@ -4,15 +4,6 @@ import { useAuth } from "../context/useAuth.js";
 import Navbar from "../components/Navbar";
 import SongRow from "../components/SongRow";
 
-function getSpotifyToken() {
-    return (
-        localStorage.getItem("songs_app_token") ||
-        localStorage.getItem("spotifyToken") ||
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("access_token")
-    );
-}
-
 export default function LikedSongs() {
     const { token } = useAuth();
 

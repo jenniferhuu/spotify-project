@@ -9,14 +9,6 @@ const filters = [
     { id: "lastMonth", label: "Last Month" },
 ];
 
-function getSpotifyToken() {
-    return (
-        localStorage.getItem("spotifyToken") ||
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("access_token")
-    );
-}
-
 export default function TopSongs() {
     const [selectedFilter, setSelectedFilter] = useState("allTime");
     const [songs, setSongs] = useState([]);

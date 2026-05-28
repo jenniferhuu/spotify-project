@@ -30,10 +30,6 @@ function getStoredProfile(defaultProfile) {
     }
 }
 
-function makeHandle(value) {
-    return value.replace(/^@+/, "").trim();
-}
-
 function getSpotifyToken() {
     return (
         localStorage.getItem("songs_app_token") ||
