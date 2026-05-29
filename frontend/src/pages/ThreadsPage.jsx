@@ -8,7 +8,12 @@ import {
     PlusIcon,
     ArrowLeftIcon,
 } from "../components/forums/ForumIcons";
-import { fetchThreads, searchThreads, deleteThread, toggleThreadLike } from "../api/forums";
+import {
+    fetchThreads,
+    searchThreads,
+    deleteThread,
+    toggleThreadLike,
+} from "../api/forums";
 import { useAuth } from "../context/useAuth.js";
 
 export default function ThreadsPage() {
@@ -85,16 +90,20 @@ export default function ThreadsPage() {
     async function handleLikeThread(threadId) {
         if (!user) return;
         const uid = user.spotifyId;
-        setThreads(prev => prev.map(t => {
-            if (t.id !== threadId) return t;
-            const likedBy = t.likedBy || [];
-            const alreadyLiked = likedBy.includes(uid);
-            return {
-                ...t,
-                likedBy: alreadyLiked ? likedBy.filter(id => id !== uid) : [...likedBy, uid],
-                likes: (t.likes || 0) + (alreadyLiked ? -1 : 1),
-            };
-        }));
+        setThreads((prev) =>
+            prev.map((t) => {
+                if (t.id !== threadId) return t;
+                const likedBy = t.likedBy || [];
+                const alreadyLiked = likedBy.includes(uid);
+                return {
+                    ...t,
+                    likedBy: alreadyLiked
+                        ? likedBy.filter((id) => id !== uid)
+                        : [...likedBy, uid],
+                    likes: (t.likes || 0) + (alreadyLiked ? -1 : 1),
+                };
+            }),
+        );
         try {
             await toggleThreadLike(forumId, threadId, uid);
         } catch (err) {
@@ -113,9 +122,9 @@ export default function ThreadsPage() {
     };
 
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen  bg-slate-50">
             <Navbar />
-            <main className="ml-52 flex-1 bg-[#EEEEEE] overflow-y-auto">
+            <main className="ml-52 flex-1  overflow-y-auto">
                 <div style={containerStyle}>
                     {/* Section 1 — Back link + forum title */}
                     <div
@@ -133,7 +142,6 @@ export default function ThreadsPage() {
                                 gap: "6px",
                                 background: "none",
                                 border: "none",
-                                color: "#2FA084",
                                 fontSize: "14px",
                                 cursor: "pointer",
                                 padding: 0,
@@ -147,7 +155,6 @@ export default function ThreadsPage() {
                             style={{
                                 fontSize: "clamp(24px, 3vw, 36px)",
                                 fontWeight: "700",
-                                color: "#1F6F5F",
                                 margin: 0,
                             }}
                         >

@@ -4,7 +4,12 @@ import Navbar from "../components/Navbar";
 import ForumCard from "../components/forums/ForumCard";
 import CreateForumModal from "../components/forums/CreateForumModal";
 import { SearchIcon, PlusIcon } from "../components/forums/ForumIcons";
-import { fetchForums, searchForums, deleteForum, toggleForumLike } from "../api/forums";
+import {
+    fetchForums,
+    searchForums,
+    deleteForum,
+    toggleForumLike,
+} from "../api/forums";
 import { useAuth } from "../context/useAuth.js";
 
 export default function ForumsPage() {
@@ -60,16 +65,20 @@ export default function ForumsPage() {
     async function handleLikeForum(forumId) {
         if (!user) return;
         const uid = user.spotifyId;
-        setForums(prev => prev.map(f => {
-            if (f.id !== forumId) return f;
-            const likedBy = f.likedBy || [];
-            const alreadyLiked = likedBy.includes(uid);
-            return {
-                ...f,
-                likedBy: alreadyLiked ? likedBy.filter(id => id !== uid) : [...likedBy, uid],
-                likes: (f.likes || 0) + (alreadyLiked ? -1 : 1),
-            };
-        }));
+        setForums((prev) =>
+            prev.map((f) => {
+                if (f.id !== forumId) return f;
+                const likedBy = f.likedBy || [];
+                const alreadyLiked = likedBy.includes(uid);
+                return {
+                    ...f,
+                    likedBy: alreadyLiked
+                        ? likedBy.filter((id) => id !== uid)
+                        : [...likedBy, uid],
+                    likes: (f.likes || 0) + (alreadyLiked ? -1 : 1),
+                };
+            }),
+        );
         try {
             await toggleForumLike(forumId, uid);
         } catch (err) {
@@ -95,9 +104,9 @@ export default function ForumsPage() {
     };
 
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen  bg-slate-50">
             <Navbar />
-            <main className="ml-52 flex-1 bg-[#EEEEEE] overflow-y-auto">
+            <main className="ml-52 flex-1 overflow-y-auto">
                 <div
                     style={{
                         maxWidth: "1200px",
@@ -109,18 +118,11 @@ export default function ForumsPage() {
                         gap: "clamp(24px, 4vh, 48px)",
                     }}
                 >
-                    {/* Section 1 — App title */}
-                    <div>
-                        <span
-                            style={{
-                                fontSize: "18px",
-                                fontWeight: "700",
-                                color: "#1F6F5F",
-                            }}
-                        >
-                            APP NAME
-                        </span>
-                    </div>
+                    <section className="space-y-3 mb-5">
+                        <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+                            Music Forums
+                        </h1>
+                    </section>
 
                     {/* Section 2 — Page title + search + create */}
                     <div
@@ -130,16 +132,6 @@ export default function ForumsPage() {
                             gap: "20px",
                         }}
                     >
-                        <h1
-                            style={{
-                                fontSize: "clamp(28px, 4vw, 42px)",
-                                fontWeight: "700",
-                                color: "#1F6F5F",
-                                margin: 0,
-                            }}
-                        >
-                            MUSIC FORUMS
-                        </h1>
                         <div
                             style={{
                                 display: "flex",

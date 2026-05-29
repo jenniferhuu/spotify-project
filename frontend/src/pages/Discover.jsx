@@ -23,14 +23,16 @@ export default function Discover() {
     return (
         <div className="min-h-screen bg-slate-50 overflow-x-hidden">
             <Navbar />
-            <div className="ml-52 min-h-screen p-8">
-                <h1 className="text-2xl font-bold text-slate-900 mb-1">
-                    Discover People
-                </h1>
-                <p className="text-slate-500 text-sm mb-6">
-                    All public users on the platform
-                </p>
 
+            <div className="ml-52 min-h-screen p-8">
+                <section className="space-y-3 mb-5">
+                    <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+                        Discover People
+                    </h1>
+                    <p className="text-base text-slate-600 sm:text-lg">
+                        All public users on the platform
+                    </p>
+                </section>
                 <div className="relative mb-6 max-w-2xl">
                     <svg
                         className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
@@ -94,7 +96,9 @@ export default function Discover() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    navigate(`/inbox?startChat=${user.spotifyId}`);
+                                    navigate(
+                                        `/inbox?startChat=${user.spotifyId}`,
+                                    );
                                 }}
                                 className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#1F6F5F] text-[#1F6F5F] text-xs font-medium hover:bg-[#1F6F5F] hover:text-white transition-colors duration-150 cursor-pointer"
                             >

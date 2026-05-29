@@ -3,8 +3,19 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ReplyCard from "../components/forums/ReplyCard";
 import CreateReplyForm from "../components/forums/CreateReplyForm";
-import { ArrowLeftIcon, UserIcon, HeartIcon, HeartFilledIcon } from "../components/forums/ForumIcons";
-import { fetchThreadDetail, deleteThread, deleteReply, toggleThreadLike, toggleReplyLike } from "../api/forums";
+import {
+    ArrowLeftIcon,
+    UserIcon,
+    HeartIcon,
+    HeartFilledIcon,
+} from "../components/forums/ForumIcons";
+import {
+    fetchThreadDetail,
+    deleteThread,
+    deleteReply,
+    toggleThreadLike,
+    toggleReplyLike,
+} from "../api/forums";
 import { useAuth } from "../context/useAuth.js";
 
 export default function ThreadDetailPage() {
@@ -76,12 +87,14 @@ export default function ThreadDetailPage() {
     async function handleLikeThread() {
         if (!user) return;
         const uid = user.spotifyId;
-        setThread(prev => {
+        setThread((prev) => {
             const likedBy = prev.likedBy || [];
             const alreadyLiked = likedBy.includes(uid);
             return {
                 ...prev,
-                likedBy: alreadyLiked ? likedBy.filter(id => id !== uid) : [...likedBy, uid],
+                likedBy: alreadyLiked
+                    ? likedBy.filter((id) => id !== uid)
+                    : [...likedBy, uid],
                 likes: (prev.likes || 0) + (alreadyLiked ? -1 : 1),
             };
         });
@@ -96,16 +109,20 @@ export default function ThreadDetailPage() {
     async function handleLikeReply(replyId) {
         if (!user) return;
         const uid = user.spotifyId;
-        setReplies(prev => prev.map(r => {
-            if (r.id !== replyId) return r;
-            const likedBy = r.likedBy || [];
-            const alreadyLiked = likedBy.includes(uid);
-            return {
-                ...r,
-                likedBy: alreadyLiked ? likedBy.filter(id => id !== uid) : [...likedBy, uid],
-                likes: (r.likes || 0) + (alreadyLiked ? -1 : 1),
-            };
-        }));
+        setReplies((prev) =>
+            prev.map((r) => {
+                if (r.id !== replyId) return r;
+                const likedBy = r.likedBy || [];
+                const alreadyLiked = likedBy.includes(uid);
+                return {
+                    ...r,
+                    likedBy: alreadyLiked
+                        ? likedBy.filter((id) => id !== uid)
+                        : [...likedBy, uid],
+                    likes: (r.likes || 0) + (alreadyLiked ? -1 : 1),
+                };
+            }),
+        );
         try {
             await toggleReplyLike(forumId, threadId, replyId, uid);
         } catch (err) {
@@ -132,9 +149,9 @@ export default function ThreadDetailPage() {
     };
 
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen  bg-slate-50">
             <Navbar />
-            <main className="ml-52 flex-1 bg-[#EEEEEE] overflow-y-auto">
+            <main className="ml-52 flex-1 overflow-y-auto">
                 <div style={containerStyle}>
                     {/* Section 1 — Back link + thread title */}
                     <div
@@ -156,7 +173,6 @@ export default function ThreadDetailPage() {
                                 gap: "6px",
                                 background: "none",
                                 border: "none",
-                                color: "#2FA084",
                                 fontSize: "14px",
                                 cursor: "pointer",
                                 padding: 0,
@@ -171,7 +187,6 @@ export default function ThreadDetailPage() {
                                 style={{
                                     fontSize: "clamp(24px, 3vw, 36px)",
                                     fontWeight: "700",
-                                    color: "#1F6F5F",
                                     margin: 0,
                                 }}
                             >
@@ -265,22 +280,32 @@ export default function ThreadDetailPage() {
                                     <button
                                         onClick={handleLikeThread}
                                         style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            background: 'none',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                            color: (thread.likedBy || []).includes(user.spotifyId) ? '#ef4444' : '#9ca3af',
-                                            fontSize: '12px',
-                                            padding: '4px 0',
-                                            marginTop: '12px',
-                                            borderRadius: '6px',
-                                            transition: 'color 0.15s',
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "4px",
+                                            background: "none",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            color: (
+                                                thread.likedBy || []
+                                            ).includes(user.spotifyId)
+                                                ? "#ef4444"
+                                                : "#9ca3af",
+                                            fontSize: "12px",
+                                            padding: "4px 0",
+                                            marginTop: "12px",
+                                            borderRadius: "6px",
+                                            transition: "color 0.15s",
                                         }}
                                         title="Like thread"
                                     >
-                                        {(thread.likedBy || []).includes(user.spotifyId) ? <HeartFilledIcon /> : <HeartIcon />}
+                                        {(thread.likedBy || []).includes(
+                                            user.spotifyId,
+                                        ) ? (
+                                            <HeartFilledIcon />
+                                        ) : (
+                                            <HeartIcon />
+                                        )}
                                         {thread.likes || 0}
                                     </button>
                                 )}
