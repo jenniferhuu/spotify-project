@@ -11,6 +11,8 @@ import {
     updateDoc,
     increment,
     serverTimestamp,
+    arrayUnion,
+    arrayRemove,
 } from "firebase/firestore";
 
 
@@ -110,4 +112,45 @@ export async function createReply(forumId, threadId, data) {
         replies: increment(1),
     });
     return { id: docRef.id };
+}
+
+// Likes
+
+export async function toggleForumLike(forumId, userId) {
+    const ref = doc(db, "forums", forumId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) throw new Error("Forum not found");
+    const likedBy = snap.data().likedBy || [];
+    const alreadyLiked = likedBy.includes(userId);
+    await updateDoc(ref, {
+        likedBy: alreadyLiked ? arrayRemove(userId) : arrayUnion(userId),
+        likes: increment(alreadyLiked ? -1 : 1),
+    });
+    return { liked: !alreadyLiked, likes: (snap.data().likes || 0) + (alreadyLiked ? -1 : 1) };
+}
+
+export async function toggleThreadLike(forumId, threadId, userId) {
+    const ref = doc(db, "forums", forumId, "threads", threadId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) throw new Error("Thread not found");
+    const likedBy = snap.data().likedBy || [];
+    const alreadyLiked = likedBy.includes(userId);
+    await updateDoc(ref, {
+        likedBy: alreadyLiked ? arrayRemove(userId) : arrayUnion(userId),
+        likes: increment(alreadyLiked ? -1 : 1),
+    });
+    return { liked: !alreadyLiked, likes: (snap.data().likes || 0) + (alreadyLiked ? -1 : 1) };
+}
+
+export async function toggleReplyLike(forumId, threadId, replyId, userId) {
+    const ref = doc(db, "forums", forumId, "threads", threadId, "replies", replyId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) throw new Error("Reply not found");
+    const likedBy = snap.data().likedBy || [];
+    const alreadyLiked = likedBy.includes(userId);
+    await updateDoc(ref, {
+        likedBy: alreadyLiked ? arrayRemove(userId) : arrayUnion(userId),
+        likes: increment(alreadyLiked ? -1 : 1),
+    });
+    return { liked: !alreadyLiked, likes: (snap.data().likes || 0) + (alreadyLiked ? -1 : 1) };
 }

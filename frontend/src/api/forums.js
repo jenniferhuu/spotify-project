@@ -89,3 +89,33 @@ export async function createReply(forumId, threadId, data) {
     if (!res.ok) throw new Error('Failed to post reply');
     return res.json();
 }
+
+export async function toggleForumLike(forumId, userId) {
+    const res = await fetch(`${BASE}/${forumId}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+    });
+    if (!res.ok) throw new Error('Failed to toggle forum like');
+    return res.json();
+}
+
+export async function toggleThreadLike(forumId, threadId, userId) {
+    const res = await fetch(`${BASE}/${forumId}/threads/${threadId}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+    });
+    if (!res.ok) throw new Error('Failed to toggle thread like');
+    return res.json();
+}
+
+export async function toggleReplyLike(forumId, threadId, replyId, userId) {
+    const res = await fetch(`${BASE}/${forumId}/threads/${threadId}/replies/${replyId}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+    });
+    if (!res.ok) throw new Error('Failed to toggle reply like');
+    return res.json();
+}

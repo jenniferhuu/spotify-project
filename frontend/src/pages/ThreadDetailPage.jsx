@@ -3,8 +3,8 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ReplyCard from "../components/forums/ReplyCard";
 import CreateReplyForm from "../components/forums/CreateReplyForm";
-import { ArrowLeftIcon, UserIcon } from "../components/forums/ForumIcons";
-import { fetchThreadDetail, deleteThread, deleteReply } from "../api/forums";
+import { ArrowLeftIcon, UserIcon, HeartIcon, HeartFilledIcon } from "../components/forums/ForumIcons";
+import { fetchThreadDetail, deleteThread, deleteReply, toggleThreadLike, toggleReplyLike } from "../api/forums";
 import { useAuth } from "../context/useAuth.js";
 
 export default function ThreadDetailPage() {
@@ -70,6 +70,47 @@ export default function ThreadDetailPage() {
             refreshThread();
         } catch (err) {
             console.error(err);
+        }
+    }
+
+    async function handleLikeThread() {
+        if (!user) return;
+        const uid = user.spotifyId;
+        setThread(prev => {
+            const likedBy = prev.likedBy || [];
+            const alreadyLiked = likedBy.includes(uid);
+            return {
+                ...prev,
+                likedBy: alreadyLiked ? likedBy.filter(id => id !== uid) : [...likedBy, uid],
+                likes: (prev.likes || 0) + (alreadyLiked ? -1 : 1),
+            };
+        });
+        try {
+            await toggleThreadLike(forumId, threadId, uid);
+        } catch (err) {
+            console.error(err);
+            refreshThread();
+        }
+    }
+
+    async function handleLikeReply(replyId) {
+        if (!user) return;
+        const uid = user.spotifyId;
+        setReplies(prev => prev.map(r => {
+            if (r.id !== replyId) return r;
+            const likedBy = r.likedBy || [];
+            const alreadyLiked = likedBy.includes(uid);
+            return {
+                ...r,
+                likedBy: alreadyLiked ? likedBy.filter(id => id !== uid) : [...likedBy, uid],
+                likes: (r.likes || 0) + (alreadyLiked ? -1 : 1),
+            };
+        }));
+        try {
+            await toggleReplyLike(forumId, threadId, replyId, uid);
+        } catch (err) {
+            console.error(err);
+            refreshThread();
         }
     }
 
@@ -220,6 +261,29 @@ export default function ThreadDetailPage() {
                                 >
                                     {thread.body}
                                 </p>
+                                {user && (
+                                    <button
+                                        onClick={handleLikeThread}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            color: (thread.likedBy || []).includes(user.spotifyId) ? '#ef4444' : '#9ca3af',
+                                            fontSize: '12px',
+                                            padding: '4px 0',
+                                            marginTop: '12px',
+                                            borderRadius: '6px',
+                                            transition: 'color 0.15s',
+                                        }}
+                                        title="Like thread"
+                                    >
+                                        {(thread.likedBy || []).includes(user.spotifyId) ? <HeartFilledIcon /> : <HeartIcon />}
+                                        {thread.likes || 0}
+                                    </button>
+                                )}
                             </div>
 
                             {/* Section 3 — Replies */}
@@ -270,6 +334,8 @@ export default function ThreadDetailPage() {
                                                         ? handleDeleteReply
                                                         : undefined
                                                 }
+                                                onLike={handleLikeReply}
+                                                user={user}
                                             />
                                         ))}
                                     </div>

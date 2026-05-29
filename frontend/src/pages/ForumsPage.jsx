@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import ForumCard from "../components/forums/ForumCard";
 import CreateForumModal from "../components/forums/CreateForumModal";
 import { SearchIcon, PlusIcon } from "../components/forums/ForumIcons";
-import { fetchForums, searchForums, deleteForum } from "../api/forums";
+import { fetchForums, searchForums, deleteForum, toggleForumLike } from "../api/forums";
 import { useAuth } from "../context/useAuth.js";
 
 export default function ForumsPage() {
@@ -54,6 +54,27 @@ export default function ForumsPage() {
             loadForums();
         } catch (err) {
             console.error(err);
+        }
+    }
+
+    async function handleLikeForum(forumId) {
+        if (!user) return;
+        const uid = user.spotifyId;
+        setForums(prev => prev.map(f => {
+            if (f.id !== forumId) return f;
+            const likedBy = f.likedBy || [];
+            const alreadyLiked = likedBy.includes(uid);
+            return {
+                ...f,
+                likedBy: alreadyLiked ? likedBy.filter(id => id !== uid) : [...likedBy, uid],
+                likes: (f.likes || 0) + (alreadyLiked ? -1 : 1),
+            };
+        }));
+        try {
+            await toggleForumLike(forumId, uid);
+        } catch (err) {
+            console.error(err);
+            loadForums();
         }
     }
 
@@ -238,6 +259,8 @@ export default function ForumsPage() {
                                                 )
                                             }
                                             onDelete={handleDelete}
+                                            onLike={handleLikeForum}
+                                            user={user}
                                         />
                                     ))}
                                 </div>
@@ -283,6 +306,8 @@ export default function ForumsPage() {
                                                     },
                                                 )
                                             }
+                                            onLike={handleLikeForum}
+                                            user={user}
                                         />
                                     ))
                                 )}

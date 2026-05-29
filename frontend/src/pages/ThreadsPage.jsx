@@ -8,7 +8,7 @@ import {
     PlusIcon,
     ArrowLeftIcon,
 } from "../components/forums/ForumIcons";
-import { fetchThreads, searchThreads, deleteThread } from "../api/forums";
+import { fetchThreads, searchThreads, deleteThread, toggleThreadLike } from "../api/forums";
 import { useAuth } from "../context/useAuth.js";
 
 export default function ThreadsPage() {
@@ -79,6 +79,27 @@ export default function ThreadsPage() {
             refreshThreads();
         } catch (err) {
             console.error(err);
+        }
+    }
+
+    async function handleLikeThread(threadId) {
+        if (!user) return;
+        const uid = user.spotifyId;
+        setThreads(prev => prev.map(t => {
+            if (t.id !== threadId) return t;
+            const likedBy = t.likedBy || [];
+            const alreadyLiked = likedBy.includes(uid);
+            return {
+                ...t,
+                likedBy: alreadyLiked ? likedBy.filter(id => id !== uid) : [...likedBy, uid],
+                likes: (t.likes || 0) + (alreadyLiked ? -1 : 1),
+            };
+        }));
+        try {
+            await toggleThreadLike(forumId, threadId, uid);
+        } catch (err) {
+            console.error(err);
+            refreshThreads();
         }
     }
 
@@ -275,6 +296,8 @@ export default function ThreadsPage() {
                                                 ? handleDeleteThread
                                                 : undefined
                                         }
+                                        onLike={handleLikeThread}
+                                        user={user}
                                     />
                                 ))}
                             </div>

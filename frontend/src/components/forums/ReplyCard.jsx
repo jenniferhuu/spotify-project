@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { UserIcon, TrashIcon } from './ForumIcons';
+import { UserIcon, TrashIcon, HeartIcon, HeartFilledIcon } from './ForumIcons';
 
-export default function ReplyCard({ reply, onDelete }) {
+export default function ReplyCard({ reply, onDelete, onLike, user }) {
     const [confirming, setConfirming] = useState(false);
 
     return (
@@ -60,6 +60,16 @@ export default function ReplyCard({ reply, onDelete }) {
             <p style={{ fontSize: '14px', color: '#1f2937', lineHeight: '1.6', margin: 0 }}>
                 {reply.body}
             </p>
+            {user && onLike && (
+                <button
+                    onClick={() => onLike(reply.id)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', color: (reply.likedBy || []).includes(user.spotifyId) ? '#ef4444' : '#9ca3af', fontSize: '12px', padding: '4px 0', marginTop: '8px', borderRadius: '6px', transition: 'color 0.15s' }}
+                    title="Like reply"
+                >
+                    {(reply.likedBy || []).includes(user.spotifyId) ? <HeartFilledIcon /> : <HeartIcon />}
+                    {reply.likes || 0}
+                </button>
+            )}
         </div>
     );
 }
