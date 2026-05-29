@@ -199,6 +199,9 @@ function UserProfilePage() {
                             headers: {
                                 Authorization: `Bearer ${token}`,
                             },
+                            params: {
+                                limit: 50,
+                            },
                         }),
                     ]);
 
