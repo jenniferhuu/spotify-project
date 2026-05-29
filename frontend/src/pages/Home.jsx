@@ -117,7 +117,7 @@ export default function Home() {
                             Sound Check
                         </span>
                     </div>
-                    <h1 className="text-3xl font-extrabold text-black tracking-tight">
+                    <h1 className="text-5xl font-extrabold text-black tracking-tight">
                         Welcome back,{" "}
                         <span className="text-[#1F6F5F]">
                             {user?.username}
@@ -127,7 +127,7 @@ export default function Home() {
                         Connect with music lovers and talk about your favorite
                         tracks!
                     </h3>
-                    <div className="mt-12">
+                    <div className="mt-10">
                         <section className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 <Link

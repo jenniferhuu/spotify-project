@@ -88,26 +88,31 @@ export default function LikedSongs() {
         setVisibleCount((prev) => prev + 10);
     };
 
-    if (loading) {
-        return (
-            <div className="flex w-full h-screen bg-slate-50 overflow-hidden">
-                <Navbar />
-                <div className="flex-1 p-8 text-slate-900 animate-pulse">
-                    Loading library...
-                </div>
-            </div>
-        );
-    }
+    // if (loading) {
+    //     return (
+    //         <div className="flex w-full h-screen bg-slate-50 overflow-hidden">
+    //             <Navbar />
+    //             <div className="flex-1 p-8 text-slate-900 animate-pulse">
+    //                 Loading library...
+    //             </div>
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className="flex w-full h-screen bg-slate-50 overflow-hidden">
             <Navbar />
 
-            <div className="ml-52 flex-1 h-full p-8 overflow-y-auto">
+            <div className="ml-52 flex-1 h-full px-6 py-10 overflow-y-auto">
                 <div className="mx-auto flex flex-col gap-2">
-                    <h2 className="text-3xl font-bold mb-6 tracking-tight text-slate-900">
-                        Your Liked Songs
-                    </h2>
+                    <section className="space-y-3 mb-5">
+                        <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+                            Your Liked Songs
+                        </h1>
+                        <p className="text-base text-slate-600 sm:text-lg">
+                            Songs you&apos;ve added recently
+                        </p>
+                    </section>
 
                     <div className="flex flex-col sm:flex-row gap-1 mb-3">
                         <input
@@ -118,8 +123,11 @@ export default function LikedSongs() {
                             className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
                         />
                     </div>
-
-                    {error ? (
+                    {loading ? (
+                        <div className="md:col-span-3 rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-slate-500">
+                            Loading liked songs...
+                        </div>
+                    ) : error ? (
                         <div className="p-12 text-center bg-rose-50 border border-rose-200 rounded-xl shadow-sm mt-2">
                             <span className="text-3xl block mb-2">⚠️</span>
                             <h3 className="text-sm font-medium text-rose-800 mb-1">
