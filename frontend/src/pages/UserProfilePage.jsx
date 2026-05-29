@@ -295,7 +295,7 @@ function UserProfilePage() {
         }
     }
 
-    function saveProfile() {
+    async function saveProfile() {
         const cleanedHandle = cleanHandle(profile.handle) || "user";
         const cleanedProfile = {
             ...profile,
@@ -311,6 +311,44 @@ function UserProfilePage() {
             JSON.stringify(cleanedProfile),
         );
         setIsEditing(false);
+    }
+
+    async function saveAllSettings() {
+        const spotifyId = spotifyUser.spotifyId || spotifyUser.id;
+        if (!spotifyId) return;
+
+        try {
+            await axios.patch(`${API_URL}/users/profile`, {
+                spotifyId,
+                bio: profile.bio,
+                handle: profile.handle || "user",
+                firstName: profile.firstName.trim() || "User",
+                lastName: profile.lastName.trim(),
+                showTopArtists: profile.showTopArtists,
+                showTopSongs: profile.showTopSongs,
+                showLikedSongs: profile.showLikedSongs,
+                artistRange: profile.artistRange,
+                songRange: profile.songRange,
+                topArtistsCache: topArtists.slice(0, 4).map((a) => ({
+                    name: a.name,
+                    imageUrl: a.images?.[0]?.url || a.image || a.imageUrl || "",
+                })),
+                topSongsCache: topSongs.slice(0, 3).map((s) => ({
+                    title: s.title || s.name || s.track?.name || "",
+                    artist: s.artist || s.artists?.map((a) => a.name).join(", ") || s.track?.artists?.map((a) => a.name).join(", ") || "",
+                    imageUrl: s.imageUrl || s.album?.images?.[0]?.url || s.track?.album?.images?.[0]?.url || "",
+                })),
+                likedSongsCache: likedSongs.slice(0, 4).map((s) => {
+                    const track = s.track || s;
+                    return {
+                        name: track.name || s.title || "",
+                        imageUrl: s.image || track.album?.images?.[0]?.url || s.album?.images?.[0]?.url || "",
+                    };
+                }),
+            });
+        } catch (error) {
+            console.error("Failed to save settings to backend:", error);
+        }
     }
 
     const profileName = getProfileName(profile);
@@ -559,6 +597,14 @@ function UserProfilePage() {
                                         onChange={handleChange}
                                     />
                                 </div>
+
+                                <button
+                                    type="button"
+                                    onClick={saveAllSettings}
+                                    className="mt-6 rounded-md bg-[#74ce97] px-7 py-2 text-sm font-semibold hover:bg-[#63c98b]"
+                                >
+                                    Save Settings
+                                </button>
                             </section>
 
                             <section className="rounded-xl border border-gray-300 bg-white p-7 shadow-sm">
