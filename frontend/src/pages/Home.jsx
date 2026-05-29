@@ -113,8 +113,8 @@ export default function Home() {
                 <Navbar />
                 <div className="flex-1 w-full h-full ml-52 p-8 overflow-y-auto">
                     <div className="flex items-center gap-3 mb-4 select-none">
-                        <span className="text-base font-bold uppercase tracking-widest text-[#1F6F5F]">
-                            Sound Check
+                        <span className="text-base font-bold tracking-widest text-[#1F6F5F]">
+                            SoundCheck
                         </span>
                     </div>
                     <h1 className="text-5xl font-extrabold text-black tracking-tight">

@@ -19,8 +19,8 @@ export default function Login() {
                             <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z" />
                         </svg>
                     </div>
-                    <span className="text-xl uppercase font-bold text-[#1F6F5F]">
-                        Sound Check
+                    <span className="text-xl font-bold text-[#1F6F5F]">
+                        SoundCheck
                     </span>
                 </div>
 
