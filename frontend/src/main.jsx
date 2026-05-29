@@ -17,6 +17,7 @@ import ForumsPage from "./pages/ForumsPage.jsx";
 import ThreadsPage from "./pages/ThreadsPage.jsx";
 import ThreadDetailPage from "./pages/ThreadDetailPage.jsx";
 import PublicProfilePage from "./pages/PublicProfilePage.jsx";
+import Inbox from "./pages/Inbox.jsx";
 
 import { AuthProvider } from "./context/AuthProvider.jsx";
 
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
             {
                 path: "/user/:spotifyId",
                 element: <PublicProfilePage />,
+            },
+            {
+                path: "/inbox",
+                element: <Inbox />,
             },
             {
                 path: "/topartists",
