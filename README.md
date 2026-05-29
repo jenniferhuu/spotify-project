@@ -1,8 +1,8 @@
-# Spotify Project
+# Soundcheck
 
 ## Project Description
 
-This project is a React + Vite frontend with an Express and Firebase backend for displaying data from the Spotify API. Users can view their top artists and songs, create a profile that other users can view, post in message boards, and message other users.
+This project is a React + Vite frontend with an Express and Firebase backend for displaying data from the Spotify API. Users can view their top artists and songs, curate their own profile that other users can see, post in forums, and message other users.
 
 ## Table of Contents
 
@@ -33,17 +33,19 @@ This project is a React + Vite frontend with an Express and Firebase backend for
     npm run dev
 	```
 
+4. You can then visit the website (typically http://localhost:5173/) in your browser.
+
+
 ## External Setup
 
-We are using some external services such as the Spotify API and Firebase which require their own configuration.
+We are using some external services such as the Spotify API and Firebase which require their own keys.
 
-- Spotify Developer App credentials: [placeholder]
-- Redirect URI / OAuth setup: [placeholder]
-- Firebase configuration: [placeholder]
-- Production API base URL: [placeholder]
+- [Spotify Developer API](https://developer.spotify.com/documentation/web-api)
+- [Firebase](https://console.firebase.google.com/)
 
 ## How to Use Project
-.
+- The website will take you to an OAuth page where you can login with your Spotify account
+- From there, explore all the features our website offers!
 
 ## Major Components and Features
 
@@ -57,10 +59,20 @@ We are using some external services such as the Spotify API and Firebase which r
 - Forum page: discussion boards where anyone can post, comment, or like
 
 ## Status of Those Features
-
+- All major features have been fully implemented.
+- We have ideas for future additional features and would like to hear your thoughts on what we can implement next:
+  - Letting users listen to songs together in chat
+  - Making polls in the forum page
+  - Group chat functionality
+  - Creating a listening match algorithm when users view other public profiles
 
 ## Credits
 
 - Built with React, Vite, Express, Axios, Tailwind CSS, and React Router.
-- Spotify Web API documentation: [placeholder]
-- Project author(s): [placeholder]
+- [Spotify Web API documentation](https://developer.spotify.com/documentation/web-api)
+- Project author(s): 
+  - [Jennifer Hu](https://github.com/jenniferhuu)
+  - [Kien Huynh](https://github.com/kienthuynh)
+  - [Kaitlyn Wei](https://github.com/Kaitlyn23254)
+  - [Sajid Islam](https://github.com/sajid-m-islam)
+  - [Danny Zhang](https://github.com/zhang-dny)
