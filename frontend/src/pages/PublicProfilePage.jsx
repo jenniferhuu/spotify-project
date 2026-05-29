@@ -133,7 +133,7 @@ export default function PublicProfilePage() {
                                 <button
                                     onClick={() =>
                                         navigate(
-                                            `/inbox?startChat=${user.id}`,
+                                            `/inbox?startChat=${user.spotifyId}`,
                                         )
                                     }
                                     className="flex items-center gap-2 px-5 py-2 rounded-full border border-[#1F6F5F] text-[#1F6F5F] text-sm font-medium hover:bg-[#1F6F5F] hover:text-white transition-colors duration-150 cursor-pointer"

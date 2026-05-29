@@ -8,6 +8,7 @@ import topSongsRouter from "./routes/topSongs.js";
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
 import topArtistsRouter from "./routes/topArtists.js";
+import chatsRouter from "./routes/chats.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -21,6 +22,7 @@ app.use("/songs", songsRouter);
 app.use("/topSongs", topSongsRouter);
 app.use("/users", usersRouter);
 app.use("/topArtists", topArtistsRouter);
+app.use("/chats", chatsRouter);
 
 app.listen(port, host, () => {
     console.log(`Server is running at http://${host}:${port}`);

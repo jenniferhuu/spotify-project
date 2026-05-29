@@ -94,7 +94,7 @@ export default function Discover() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    navigate(`/inbox?startChat=${user.id}`);
+                                    navigate(`/inbox?startChat=${user.spotifyId}`);
                                 }}
                                 className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#1F6F5F] text-[#1F6F5F] text-xs font-medium hover:bg-[#1F6F5F] hover:text-white transition-colors duration-150 cursor-pointer"
                             >
