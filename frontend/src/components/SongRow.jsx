@@ -1,4 +1,4 @@
-export default function SongRow({ index, songData }) {
+export default function SongRow({ index, songData, compact = false }) {
     const { track } = songData;
     const { album, artists, duration_ms, name, explicit } = track;
 
@@ -41,14 +41,16 @@ export default function SongRow({ index, songData }) {
                 </div>
             </div>
 
-            <div className="flex items-center gap-8 text-xs font-semibold text-slate-400">
-                <span className="hidden md:inline w-44 truncate text-left">
-                    {albumName}
-                </span>
-                <span className="w-10 text-right font-medium text-slate-500">
-                    {formattedDuration}
-                </span>
-            </div>
+            {!compact && (
+                <div className="flex items-center gap-8 text-xs font-semibold text-slate-400">
+                    <span className="hidden md:inline w-44 truncate text-left">
+                        {albumName}
+                    </span>
+                    <span className="w-10 text-right font-medium text-slate-500">
+                        {formattedDuration}
+                    </span>
+                </div>
+            )}
         </div>
     );
 }

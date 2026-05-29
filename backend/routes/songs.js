@@ -13,9 +13,9 @@ router.get("/likedsongs", async (req, res) => {
         }
 
         const token = authHeader.split(" ")[1];
-
+        const limit = parseInt(req.query.limit, 10);
         const response = await fetch(
-            "https://api.spotify.com/v1/me/tracks?limit=50",
+            `https://api.spotify.com/v1/me/tracks?limit=${limit}`,
             {
                 method: "GET",
                 headers: {

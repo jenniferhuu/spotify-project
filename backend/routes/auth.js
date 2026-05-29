@@ -158,15 +158,32 @@ router.get("/spotify/callback", async (req, res) => {
             headers: { Authorization: `Bearer ${tokenData.access_token}` },
         });
 
-        if (!profileResponse.ok) throw new Error("Failed to fetch profile");
+        if (!profileResponse.ok) {
+            const errorText = await profileResponse.text();
+            console.error("====== SPOTIFY PROFILE FETCH FAILED ======");
+            console.error(`Status Code: ${profileResponse.status}`);
+            console.error(`Error Body:  ${errorText}`);
+            console.error("==========================================");
+            console.log(
+                "Retry after:",
+                profileResponse.headers.get("retry-after"),
+                "seconds",
+            );
+            throw new Error("Failed to fetch profile");
+        }
         const profile = await profileResponse.json();
 
         // Fetch top artist to get genre
         let topGenre = "";
         try {
-            const topArtistsRes = await fetch(`${spotifyApiUrl}/me/top/artists?limit=1`, {
-                headers: { Authorization: `Bearer ${tokenData.access_token}` },
-            });
+            const topArtistsRes = await fetch(
+                `${spotifyApiUrl}/me/top/artists?limit=1`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${tokenData.access_token}`,
+                    },
+                },
+            );
             if (topArtistsRes.ok) {
                 const topArtists = await topArtistsRes.json();
                 topGenre = topArtists.items?.[0]?.genres?.[0] || "";
