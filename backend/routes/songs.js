@@ -32,9 +32,21 @@ router.get("/likedsongs", async (req, res) => {
             });
         }
 
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Spotify liked songs error:", errorText);
+
+            return res.status(response.status).json({
+                message: "Failed to fetch liked songs from Spotify",
+            });
+        }
+
         const data = await response.json();
 
-        res.status(200).json(data);
+        res.status(200).json({
+            total: data.total,
+            items: data.items,
+        });
     } catch (error) {
         console.error("Failed to fetch liked songs", error);
         res.status(500).json({ message: "Failed to fetch liked songs" });

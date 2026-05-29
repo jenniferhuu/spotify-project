@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { UsersIcon, TrashIcon } from './ForumIcons';
+import { UsersIcon, TrashIcon, HeartIcon, HeartFilledIcon } from './ForumIcons';
 
-export default function ForumCard({ forum, onClick, onDelete }) {
+export default function ForumCard({ forum, onClick, onDelete, onLike, user }) {
     const [confirming, setConfirming] = useState(false);
 
     function handleTrashClick(e) {
@@ -99,6 +99,16 @@ export default function ForumCard({ forum, onClick, onDelete }) {
                     </div>
                 ) : (
                     <>
+                        {user && onLike && (
+                            <button
+                                onClick={e => { e.stopPropagation(); onLike(forum.id); }}
+                                style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', color: (forum.likedBy || []).includes(user.spotifyId) ? '#ef4444' : '#9ca3af', fontSize: '12px', padding: '4px', borderRadius: '6px', transition: 'color 0.15s' }}
+                                title="Like forum"
+                            >
+                                {(forum.likedBy || []).includes(user.spotifyId) ? <HeartFilledIcon /> : <HeartIcon />}
+                                {forum.likes || 0}
+                            </button>
+                        )}
                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#9ca3af' }}>
                             <UsersIcon className="w-4 h-4" />
                             {forum.threadCount ?? 0}

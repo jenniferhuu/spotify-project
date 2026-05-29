@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { UserIcon, ChatIcon, TrashIcon } from './ForumIcons';
+import { UserIcon, ChatIcon, TrashIcon, HeartIcon, HeartFilledIcon } from './ForumIcons';
 
-export default function ThreadCard({ thread, onClick, onDelete }) {
+export default function ThreadCard({ thread, onClick, onDelete, onLike, user }) {
     const [confirming, setConfirming] = useState(false);
 
     function handleTrashClick(e) {
@@ -79,6 +79,16 @@ export default function ThreadCard({ thread, onClick, onDelete }) {
                             <UserIcon className="w-4 h-4" />
                             {thread.authorName}
                         </span>
+                        {user && onLike && (
+                            <button
+                                onClick={e => { e.stopPropagation(); onLike(thread.id); }}
+                                style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', color: (thread.likedBy || []).includes(user.spotifyId) ? '#ef4444' : '#9ca3af', fontSize: '12px', padding: '4px', borderRadius: '6px', transition: 'color 0.15s' }}
+                                title="Like thread"
+                            >
+                                {(thread.likedBy || []).includes(user.spotifyId) ? <HeartFilledIcon /> : <HeartIcon />}
+                                {thread.likes || 0}
+                            </button>
+                        )}
                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#9ca3af' }}>
                             <ChatIcon className="w-4 h-4" />
                             {thread.replies ?? 0}

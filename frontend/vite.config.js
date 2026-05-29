@@ -10,7 +10,9 @@ export default defineConfig({
             '/auth': 'http://127.0.0.1:5000',
             '/songs': 'http://127.0.0.1:5000',
             '/topSongs': 'http://127.0.0.1:5000',
+            '/topArtists': 'http://127.0.0.1:5000',
             '/users': 'http://127.0.0.1:5000',
+            '/chats': 'http://127.0.0.1:5000',
         },
     },
 });

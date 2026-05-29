@@ -39,16 +39,13 @@ async function getSpotifyErrorMessage(response, fallbackMessage) {
     }
 }
 
-// Helper function to format Spotify track data into a consistent structure for frontend
-function formatTopTrack(track, index) {
+// Helper function to format Spotify artist data into a consistent structure for frontend
+function formatTopArtist(artist, index) {
     return {
         rank: index + 1,
-        id: track.id,
-        title: track.name,
-        artist: track.artists?.map((artist) => artist.name).join(", ") || "",
-        album: track.album?.name || "",
-        imageUrl: track.album?.images?.[0]?.url || "",
-        spotifyUrl: track.external_urls?.spotify || "",
+        id: artist.id,
+        name: artist.name,
+        imageUrl: artist.images?.[0]?.url || "",
     };
 }
 
@@ -65,7 +62,7 @@ router.get("/", async (req, res) => {
         const requestedRange = req.query.range || "allTime";
         const timeRange = spotifyTimeRanges[requestedRange] || "long_term";
         const response = await fetch(
-            `${spotifyApiUrl}/me/top/tracks?time_range=${timeRange}&limit=30`,
+            `${spotifyApiUrl}/me/top/artists?time_range=${timeRange}&limit=30`,
             {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -77,7 +74,7 @@ router.get("/", async (req, res) => {
         if (!response.ok) {
             const errorMessage = await getSpotifyErrorMessage(
                 response,
-                "Failed to fetch top songs",
+                "Failed to fetch top artists",
             );
 
             return res.status(response.status).json({
@@ -87,16 +84,16 @@ router.get("/", async (req, res) => {
         }
 
         const data = await response.json();
-        const songs = (data.items || []).map(formatTopTrack);
+        const artists = (data.items || []).map(formatTopArtist);
 
         res.status(200).json({
             timeRange: requestedRange,
-            total: data.total ?? songs.length,
-            items: songs,
+            total: data.total ?? artists.length,
+            items: artists,
         });
     } catch (error) {
-        console.error("Failed to fetch top songs", error);
-        res.status(500).json({ message: "Failed to fetch top songs" });
+        console.error("Failed to fetch top artists", error);
+        res.status(500).json({ message: "Failed to fetch top artists" });
     }
 });
 

@@ -156,3 +156,41 @@ export async function postReply(req, res) {
         res.status(500).json({ error: err.message });
     }
 }
+
+// Likes
+
+export async function toggleForumLikeHandler(req, res) {
+    try {
+        const { forumId } = req.params;
+        const { userId } = req.body;
+        if (!userId) return res.status(400).json({ error: "Missing userId" });
+        const result = await forumsService.toggleForumLike(forumId, userId);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+export async function toggleThreadLikeHandler(req, res) {
+    try {
+        const { forumId, threadId } = req.params;
+        const { userId } = req.body;
+        if (!userId) return res.status(400).json({ error: "Missing userId" });
+        const result = await forumsService.toggleThreadLike(forumId, threadId, userId);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+export async function toggleReplyLikeHandler(req, res) {
+    try {
+        const { forumId, threadId, replyId } = req.params;
+        const { userId } = req.body;
+        if (!userId) return res.status(400).json({ error: "Missing userId" });
+        const result = await forumsService.toggleReplyLike(forumId, threadId, replyId, userId);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
