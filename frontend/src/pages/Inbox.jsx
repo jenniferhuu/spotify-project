@@ -90,15 +90,13 @@ export default function Inbox() {
             console.error("Failed to mark as read:", err);
         }
     }, [myId]);
-
-    // Initial fetch + polling for chat list
+    
     useEffect(() => {
         fetchChats();
         const interval = setInterval(fetchChats, 10000);
         return () => clearInterval(interval);
     }, [fetchChats]);
 
-    // Handle ?startChat= query param
     useEffect(() => {
         if (startChatHandled.current) return;
         const startChatId = searchParams.get("startChat");
@@ -137,7 +135,6 @@ export default function Inbox() {
         })();
     }, [searchParams, myId, setSearchParams, fetchChats]);
 
-    // Poll messages for selected chat
     useEffect(() => {
         if (!selectedChatId) return;
         fetchMessages(selectedChatId);
@@ -149,12 +146,10 @@ export default function Inbox() {
         return () => clearInterval(interval);
     }, [selectedChatId, fetchMessages, markAsRead]);
 
-    // Auto-scroll to bottom
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    // Refresh unread after reading
     useEffect(() => {
         if (selectedChatId) {
             fetchChats();
@@ -194,7 +189,6 @@ export default function Inbox() {
         }
     };
 
-    // New message modal
     const openNewMessage = async () => {
         setShowNewModal(true);
         try {
@@ -234,7 +228,6 @@ export default function Inbox() {
         }
     };
 
-    // Filtering
     const filteredChats = chats
         .filter((c) => {
             if (filter === "unread") return c.unreadCount > 0;
