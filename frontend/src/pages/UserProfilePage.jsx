@@ -155,7 +155,7 @@ function UserProfilePage() {
         }
 
         loadPrivacyFromBackend();
-    }, []);
+    }, [spotifyUser.id, spotifyUser.spotifyId]);
 
     useEffect(() => {
         if (!privacyLoadedRef.current) return;
@@ -171,7 +171,7 @@ function UserProfilePage() {
             .catch((error) =>
                 console.error("Failed to sync privacy setting:", error),
             );
-    }, [profile.isPublic]);
+    }, [profile.isPublic, spotifyUser.id, spotifyUser.spotifyId]);
 
     useEffect(() => {
         async function loadProfileData() {

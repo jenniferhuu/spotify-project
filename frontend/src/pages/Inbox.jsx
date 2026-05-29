@@ -57,24 +57,26 @@ export default function Inbox() {
     const myId = user?.spotifyId;
 
     const fetchChats = useCallback(async () => {
-        if (!myId) return;
+        if (!myId) return null;
         try {
             const res = await fetch(`${API}/chats/user/${myId}`);
             const data = await res.json();
-            setChats(data.chats || []);
+            return data.chats || [];
         } catch (err) {
             console.error("Failed to fetch chats:", err);
+            return null;
         }
     }, [myId]);
 
     const fetchMessages = useCallback(async (chatId) => {
-        if (!chatId) return;
+        if (!chatId) return null;
         try {
             const res = await fetch(`${API}/chats/${chatId}/messages`);
             const data = await res.json();
-            setMessages(data.messages || []);
+            return data.messages || [];
         } catch (err) {
             console.error("Failed to fetch messages:", err);
+            return null;
         }
     }, []);
 
@@ -92,8 +94,11 @@ export default function Inbox() {
     }, [myId]);
     
     useEffect(() => {
-        fetchChats();
-        const interval = setInterval(fetchChats, 10000);
+        const loadChats = () => {
+            fetchChats().then(data => { if (data) setChats(data); });
+        };
+        loadChats();
+        const interval = setInterval(loadChats, 10000);
         return () => clearInterval(interval);
     }, [fetchChats]);
 
@@ -127,7 +132,8 @@ export default function Inbox() {
                         profilePic: userData.profilePic || "",
                         handle: userData.handle || "",
                     });
-                    await fetchChats();
+                    const chatData = await fetchChats();
+                    if (chatData) setChats(chatData);
                 }
             } catch (err) {
                 console.error("Failed to start chat:", err);
@@ -137,10 +143,13 @@ export default function Inbox() {
 
     useEffect(() => {
         if (!selectedChatId) return;
-        fetchMessages(selectedChatId);
+        const loadMessages = () => {
+            fetchMessages(selectedChatId).then(data => { if (data) setMessages(data); });
+        };
+        loadMessages();
         markAsRead(selectedChatId);
         const interval = setInterval(() => {
-            fetchMessages(selectedChatId);
+            loadMessages();
             markAsRead(selectedChatId);
         }, 3000);
         return () => clearInterval(interval);
@@ -150,16 +159,12 @@ export default function Inbox() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    useEffect(() => {
-        if (selectedChatId) {
-            fetchChats();
-        }
-    }, [selectedChatId, fetchChats]);
-
-    const handleSelectChat = (chat) => {
+    const handleSelectChat = async (chat) => {
         setSelectedChatId(chat.id);
         setSelectedUser(chat.otherUser);
-        markAsRead(chat.id);
+        await markAsRead(chat.id);
+        const data = await fetchChats();
+        if (data) setChats(data);
     };
 
     const handleSend = async () => {
@@ -175,8 +180,10 @@ export default function Inbox() {
                 }),
             });
             setNewMessage("");
-            await fetchMessages(selectedChatId);
-            await fetchChats();
+            const msgs = await fetchMessages(selectedChatId);
+            if (msgs) setMessages(msgs);
+            const chatData = await fetchChats();
+            if (chatData) setChats(chatData);
         } catch (err) {
             console.error("Failed to send message:", err);
         }
@@ -221,7 +228,8 @@ export default function Inbox() {
                     profilePic: targetUser.profilePic || "",
                     handle: targetUser.handle || "",
                 });
-                await fetchChats();
+                const chatData = await fetchChats();
+                if (chatData) setChats(chatData);
             }
         } catch (err) {
             console.error("Failed to create chat:", err);
